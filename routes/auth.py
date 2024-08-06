@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, session
-from models import db, Player
+from lib.database import db, Player
+from lib.turns import TurnManager
 from routes import auth_bp
 
 
@@ -30,5 +31,7 @@ def login():
 
 @auth_bp.route('/logout')
 def logout():
-    session.pop('player_name', None)
+    if 'player_name' in session:
+        player_name = session.pop('player_name', None)
+        TurnManager.drop_player(player_name)
     return redirect(url_for('auth.login'))
