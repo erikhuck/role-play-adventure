@@ -4,7 +4,7 @@ from routes import main_bp
 
 @main_bp.route('/')
 def home():
-    if 'username' in session:
-        return render_template('home.html', username=session['username'])
+    if 'player_name' in session:
+        return render_template('home.html', player_name=session['player_name'])
     else:
         return redirect(url_for('auth.login'))

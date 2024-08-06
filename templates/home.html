@@ -4,7 +4,15 @@
     <title>Home</title>
 </head>
 <body>
-    <h1>{{ username }}!</h1>
+    <h1>{{ player_name }}</h1>
+    <h2>Skills</h2>
+    <div>
+        {% include 'skills.html' %}
+    </div>
+    <h2>Inventory</h2>
+    <div>
+        {% include 'inventory.html' %}
+    </div>
     <form action="{{ url_for('auth.logout') }}">
         <button type="submit">Logout</button>
     </form>

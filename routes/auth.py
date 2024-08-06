@@ -6,27 +6,29 @@ from routes import auth_bp
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if 'create_player' in request.form:
+        if 'new_player' in request.form:
             new_name = request.form['new_player']
             if not Player.query.filter_by(name=new_name).first():
                 new_player = Player(name=new_name)
                 db.session.add(new_player)
                 db.session.commit()
             return redirect(url_for('auth.login'))
-
-        elif 'login_user' in request.form:
-            username = request.form['login_user']
-            if Player.query.filter_by(name=username).first():
-                session['username'] = username
+        elif 'player_name' in request.form:
+            if 'player_name' in session:
+                return f'You already logged in as "{session["player_name"]}". Close this tab now.'
+            player_name = request.form['player_name']
+            if Player.query.filter_by(name=player_name).first():
+                session['player_name'] = player_name
                 return redirect(url_for('main.home'))
             else:
-                return "Invalid user! Please select a valid username."
-
-    users = Player.query.all()
-    return render_template('login.html', users=users)
+                return 'INVALID PLAYER'
+    if 'player_name' in session:
+        return redirect(url_for('main.home'))
+    players = Player.query.all()
+    return render_template('login.html', players=players)
 
 
 @auth_bp.route('/logout')
 def logout():
-    session.pop('username', None)
-    return redirect(url_for('main.home'))
+    session.pop('player_name', None)
+    return redirect(url_for('auth.login'))
