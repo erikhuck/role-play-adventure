@@ -4,32 +4,30 @@
     <title>Home</title>
 </head>
 <body>
-    <h1>{{ player_name }}</h1>
-    <h2>Players</h2>
-    {% for player_name in player_names %}
-        {% if loop.index0 == current_turn %} <b>{{ player_name }}</b> {% else %} {{ player_name }} {% endif %}
-    {% endfor %}
-    <div>
-        {% if player_names[current_turn] == player_name %}
-            <p>IT'S YOUR TURN!</p>
-            <button id="end-turn-btn">End Turn</button>
-            </div>
-            <h2>Abilities</h2>
-            <div>
-                {% include 'abilities.html' %}
-            </div>
-            <h2>Inventory</h2>
-            <div>
-                {% include 'inventory.html' %}
-            </div>
-        {% else %}
-            <p>It's {{ player_names[current_turn] }}'s turn</p>
-        {% endif %}
-    <form action="{{ url_for('auth.logout') }}">
-        <button type="submit">Logout</button>
-    </form>
-    <!--suppress JSUnresolvedLibraryURL -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='websocket.js') }}"></script>
+<h1>{{ player_name }}</h1>
+<h2>Who's Turn Is It?</h2>
+{% for turn in turns %}
+    {% if loop.index0 == current_turn %} <b>{{ turn.name }}</b> {% else %} {{ turn.name }} {% endif %}
+{% endfor %}
+<div>
+    {% if turns[current_turn].name == player_name %}
+        <p>IT'S YOUR TURN!</p>
+        <button id="end-turn-btn">End Turn</button>
+        <form action="{{ url_for('abilities.index') }}">
+            <button type="submit">Abilities</button>
+        </form>
+        <form action="{{ url_for('inventory.index') }}">
+            <button type="submit">Inventory</button>
+        </form>
+    {% else %}
+        <p>It's {{ turns[current_turn].name }}'s turn</p>
+    {% endif %}
+</div>
+<form action="{{ url_for('auth.logout') }}">
+    <button type="submit">Logout</button>
+</form>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+<script src="{{ url_for('static', filename='websocket.js') }}"></script>
 </body>
 </html>

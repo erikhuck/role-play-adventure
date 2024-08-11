@@ -1,24 +1,37 @@
-from lib.socket import socketio
+from lib.websocket import socketio
+from lib.database import Database
 
 
+# noinspection PyPropertyDefinition
 class TurnManager:
-    current_turn = 0
-    player_names = list[str]()
+    Turn = Database.Player | Database.NPC
+    _current_turn = 0
+    _turns = list[Turn]()
 
     @classmethod
-    def add_player(cls, player_name: str):
-        if player_name not in cls.player_names:
-            cls.player_names.append(player_name)
+    @property
+    def current_turn(cls) -> int:
+        return cls._current_turn
+
+    @classmethod
+    @property
+    def turns(cls) -> tuple[Turn, ...]:
+        return tuple(cls._turns)
+
+    @classmethod
+    def add_turn(cls, turn: Turn):
+        if turn not in cls._turns:
+            cls._turns.append(turn)
             socketio.emit('reload')
 
     @classmethod
-    def drop_player(cls, player_name: str):
-        if player_name in cls.player_names:
-            cls.player_names.remove(player_name)
-            cls.current_turn = 0
+    def drop_turn(cls, turn: Turn):
+        if turn in cls._turns:
+            cls._turns.remove(turn)
+            cls._current_turn = 0
             socketio.emit('reload')
 
     @classmethod
     def next_turn(cls):
-        cls.current_turn = (cls.current_turn + 1) % len(cls.player_names)
+        cls._current_turn = (cls._current_turn + 1) % len(cls._turns)
         socketio.emit('reload')
