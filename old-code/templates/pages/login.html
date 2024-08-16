@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Player Select</title>
+</head>
+<body>
+<h1>Player Select</h1>
+<h2>Select your player</h2>
+<form method="post">
+    <ul>
+        {% for player in players %}
+            <li>
+                <button type="submit" name="player_name" value="{{ player.name }}">{{ player.name }}</button>
+            </li>
+        {% endfor %}
+    </ul>
+</form>
+<h2>Create a New Player</h2>
+<form method="post">
+    <label for="new_player">New player name:</label>
+    <input type="text" id="new_player" name="new_player" required>
+    <button type="submit">Create Player</button>
+</form>
+</body>
+{% include 'components/../components/websocket.html' %}
+</html>

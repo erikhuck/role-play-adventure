@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+</head>
+<body>
+<h1>{{ player_name }}</h1>
+<h2>Who's Turn Is It?</h2>
+{% for turn in turns %}
+    {% if loop.index0 == current_turn %} <b>{{ turn.name }}</b> {% else %} {{ turn.name }} {% endif %}
+{% endfor %}
+<div>
+    {% if turns[current_turn].name == player_name %}
+        <p>IT'S YOUR TURN!</p>
+        <button id="end-turn-btn">End Turn</button>
+        <form action="{{ url_for('abilities.index') }}">
+            <button type="submit">Abilities</button>
+        </form>
+        <form action="{{ url_for('inventory.index') }}">
+            <button type="submit">Inventory</button>
+        </form>
+    {% else %}
+        <p>It's {{ turns[current_turn].name }}'s turn</p>
+    {% endif %}
+</div>
+<form action="{{ url_for('auth.logout') }}">
+    <button type="submit">Logout</button>
+</form>
+</body>
+{% include 'components/../components/websocket.html' %}
+</html>

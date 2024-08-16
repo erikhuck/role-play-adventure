@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Abilities</title>
+</head>
+<body>
+<h1>{{ player_name }}'s Abilities</h1>
+<h2>Ability Check</h2>
+{% if ability_check is defined %}
+    <p>Ability: {{ ability_name }}</p>
+    <p>Level: {{ ability_level }}</p>
+    <p>Player Check: {{ ability_check }} + {{ ability_level }} + {{ tmp_diff }} = {{ check_total }}</p>
+    <p>Target Check: {{ target_check }}</p>
+    <p><b>{% if success %}SUCCESS{% else %}FAILURE{% endif %}</b></p>
+{% else %}
+    None yet
+{% endif %}
+<h2>Ability List</h2>
+<ul>
+    {% for ability in abilities %}
+        <li>
+            <form method="get" action="{{ url_for('abilities.index', ability_name=ability.name) }}">
+                <button type="submit" name="ability_name" value="{{ ability.name }}">{{ ability.name }}</button>
+                Level: {{ ability.level }} Temp Diff: {{ ability.tmp_diff }} XP: {{ ability.xp }}
+            </form>
+            {% if ability_name == ability.name %}
+                <p>Target Type:</p>
+                <form method="get" action="{{ url_for('abilities.index') }}">
+                    <input type="hidden" name="ability_name" value="{{ ability.name }}">
+                    <input type="radio" name="target_type" value="difficulty_level">Difficulty Level<br>
+                    <input type="radio" name="target_type" value="character">Character<br>
+                </form>
+                {% if target_type == "difficulty_level" %}
+                    <form method="post" action="{{ url_for('abilities.check') }}">
+                        <input type="hidden" name="ability_name" value="{{ ability.name }}">
+                        <input type="hidden" name="target_type" value="difficulty_level">
+                        <input type="radio" name="difficulty_level" value="5"> EASY<br>
+                        <input type="radio" name="difficulty_level" value="10"> MODERATE<br>
+                        <input type="radio" name="difficulty_level" value="15"> HARD<br>
+                        <input type="radio" name="difficulty_level" value="20"> VERY HARD<br>
+                    </form>
+                {% elif target_type == "character" %}
+                    {{ target_type }}
+{#                    <ul>#}
+{#                        {% for character in turns %}#}
+{#                            <li>#}
+{#                                <form method="get" action="{{ url_for('abilities.index', character_index="{{  }}") }}">#}
+{#                                    <button type="submit" name="ability_name" value="{{ ability.name }}">{{ ability.name }}</button>#}
+{#                                    Level: {{ ability.level }} Temp Diff: {{ ability.tmp_diff }} XP: {{ ability.xp }}#}
+{#                                </form>#}
+{#                            </li>#}
+{#                        {% endfor %}#}
+{#                    </ul>#}
+                {% endif %}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% include 'components/../components/home-button.html' %}
+</body>
+{% include 'components/../components/websocket.html' %}
+<script>
+    const radioButtons = document.querySelectorAll('input[type="radio"]')
+    radioButtons.forEach(radioButton => {
+        radioButton.addEventListener('change', () => {
+            radioButton.form.submit()
+        })
+    })
+</script>
+</html>

@@ -1,0 +1,18 @@
+<!--suppress ALL -->
+{% for condition in conditions %}
+    <label for="{{ slider_category }}_slider_{{ condition }}">{{ condition|capitalize }}:</label>
+    <input type="range" id="{{ slider_category }}_slider_{{ condition }}" name="{{ slider_category }}_slider_{{ condition }}"
+           min="0" max="10" value="0">
+    <span id="{{ slider_category }}_slider_value_{{ condition }}">0</span>
+    <br>
+{% endfor %}
+
+<script>
+    document.querySelectorAll('input[id^="{{ slider_category }}_slider"]').forEach((slider) => {
+        const valueDisplay = document.getElementById(slider.id.replace('slider', 'slider_value'));
+        valueDisplay.textContent = slider.value
+        slider.addEventListener('input', function () {
+            valueDisplay.textContent = this.value
+        })
+    })
+</script>
