@@ -1,6 +1,6 @@
 from flask_socketio import SocketIO
 
-socketio = SocketIO(cors_allowed_origins="*")
+socketio = SocketIO(path='/api/websocket', cors_allowed_origins="*")
 
 
 @socketio.on('connect')
