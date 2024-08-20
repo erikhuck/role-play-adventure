@@ -9,15 +9,14 @@ const Turns = ({updateGlobalState}) => {
     useEffect(() => {
         (async function () {
             const {currentTurn, turns} = await apiFetch('turns/add', navigate, 'POST', {
-                turn_type: 'player', 'name': globalState.player.name
+                turnType: 'player', 'name': globalState.player.name
             })
             updateGlobalState({currentTurn, turns})
         })()
     }, [])
     const handleNextTurn = useCallback(async () => {
-        const {currentTurn} = await apiFetch('turns/next', navigate, 'PUT')
-        updateGlobalState({currentTurn})
-    }, [updateGlobalState, navigate])
+        await apiFetch('turns/next', navigate, 'PUT')
+    }, [navigate])
     const turnName = getTurnName(globalState)
     return (
         <>

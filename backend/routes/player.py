@@ -1,19 +1,15 @@
 from flask import jsonify, session, abort, request
 from routes import player_bp
 from lib.database import db
+import lib
 import dataclasses as dclass
 
 
 @player_bp.route('/', methods=['GET'])
 def get_player():
-    if 'player_name' not in session:
-        player = None
-    elif session['player_name'] not in db.players:
-        del session['player_name']
-        player = None
-    else:
-        player = db.players[session['player_name']]
-        abilities = sorted(player.abilities.values(), key=lambda a: a.name)
+    player = lib.get_player()
+    if player is not None:
+        abilities = lib.sort_values(player.abilities)
         player = dclass.asdict(player)
         player['abilities'] = abilities
     return jsonify(player)
@@ -27,7 +23,7 @@ def get_player_names():
 
 @player_bp.route('/new', methods=['POST'])
 def new_player():
-    new_player_name = request.json['new_player_name']
+    new_player_name = request.json['newPlayerName']
     if new_player_name not in db.players:
         db.add_player(name=new_player_name)
         player_names = sorted(db.players.keys())

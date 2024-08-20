@@ -11,12 +11,6 @@ const socket = io('/', {path: '/api/websocket'})
 
 
 function App() {
-    useEffect(() => {
-        // Listen for reload events from the WebSocket server
-        socket.on('reload', (_) => {
-            window.location.reload()
-        })
-    }, [])
     const {setGlobalState} = useContext(GlobalContext)
     const updateGlobalState = useCallback((partialState) => {
         setGlobalState((prevState) => ({
@@ -31,6 +25,12 @@ function App() {
             const conditions = await response.json()
             updateGlobalState({conditions})
         })()
+    }, [])
+    useEffect(() => {
+        // Listen for events from the web socket.
+        socket.on('update-global-state', (data) => {
+            updateGlobalState(data)
+        })
     }, [])
     return (
         <Router>

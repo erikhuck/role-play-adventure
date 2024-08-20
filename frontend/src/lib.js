@@ -26,5 +26,13 @@ export const apiFetch = async (path, navigate, method = 'GET', body = undefined)
     return undefined
 }
 
-export const getTurnName = globalState => globalState.turns ? globalState.turns[globalState.currentTurn].name : undefined
+export const getTurnName = globalState => (
+    globalState.turns && globalState.currentTurn !== undefined ? globalState.turns[globalState.currentTurn].name : undefined)
+
 export const isPlayerTurn = globalState => getTurnName(globalState) === globalState.player.name
+
+export const getFormData = (event) => {
+    event.preventDefault()
+    let formData = new FormData(event.target)
+    return Object.fromEntries(formData.entries())
+}

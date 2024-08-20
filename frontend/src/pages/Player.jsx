@@ -8,15 +8,9 @@ import PlayerAbilities from "../components/PlayerAbilities.jsx"
 import PlayerInventory from "../components/PlayerInventory.jsx"
 import CollapsibleComponent from "../components/CollapsibleComponent.jsx"
 
-const Player = () => {
+const Player = ({updateGlobalState}) => {
     const {globalState, setGlobalState} = useContext(GlobalContext)
     const navigate = useNavigate()
-    const updateGlobalState = useCallback((partialState) => {
-        setGlobalState((prevState) => ({
-            ...prevState,
-            ...partialState,
-        }))
-    }, [setGlobalState])
     useEffect(() => {
         (async function () {
             if (!globalState.player) {

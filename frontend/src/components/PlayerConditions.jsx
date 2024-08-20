@@ -5,13 +5,6 @@ import {apiFetch} from "../lib.js"
 
 const PlayerConditions = ({updateGlobalState}) => {
     const {globalState} = useContext(GlobalContext)
-    const navigate = useNavigate()
-    useEffect(() => {
-        (async function () {
-            const conditions = await apiFetch('conditions', navigate)
-            updateGlobalState({conditions})
-        })()
-    }, [])
     let conditionData = undefined
     if (globalState.conditions) {
         conditionData = globalState.conditions.map(condition => ({
