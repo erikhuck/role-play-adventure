@@ -1,0 +1,12 @@
+{
+  "name": "role-play-adventure",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "cd frontend/ && npm run build && cd ../backend && npm start",
+    "ngrok": "ngrok http http://127.0.0.1:5001/ --domain=wallaby-profound-hugely.ngrok-free.app"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

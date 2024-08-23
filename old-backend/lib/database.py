@@ -150,7 +150,7 @@ class Database:
         for player in self._players.values():
             if template.name not in player.abilities:
                 player.abilities[template.name] = Database.PlayerAbility(**{**dclass.asdict(template), 'level': 0})
-        self._save()
+        self._save({name: dclass.asdict(ability_template) for (name, ability_template) in self._ability_templates.items()})
 
     def add_container_template(self, template: Database.ContainerTemplate):
         self._add_template(template, templates=self._container_templates)
@@ -196,10 +196,10 @@ class Database:
         Database._loaded = True
         return database
 
-    def _save(self):
+    def _save(self, updated_state):
         with open(Database.PATH, 'wb') as f:
             pkl.dump(self, f)
-        socketio.emit('reload')
+        socketio.emit('update-global-state', updated_state)
 
 
 # noinspection PyProtectedMember

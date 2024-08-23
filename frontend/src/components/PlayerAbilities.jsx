@@ -1,20 +1,19 @@
-import {useContext, useEffect} from "react"
+import {useContext} from "react"
 import {GlobalContext} from "../main/GlobalContext.jsx"
-import {useNavigate} from "react-router-dom"
-import {apiFetch} from "../lib.js"
+import {getPlayer} from '../lib.js'
 
-const PlayerAbilities = ({updateGlobalState}) => {
+const PlayerAbilities = () => {
     const {globalState} = useContext(GlobalContext)
-    const navigate = useNavigate()
+    const player = getPlayer(globalState)
     // TODO replace <p>ability.name</p> with the ability UI.
     return (
         <>
             <h2>Player Abilities</h2>
-            {globalState.player.abilities ? (
+            {player.abilities ? (
                 <ul>
-                    {globalState.player.abilities.map(ability => (
+                    {player.abilities.map(ability => (
                         <li>
-                            <p>ability.name</p>
+                            <p>{ability.name}</p>
                         </li>
                     ))}
                 </ul>

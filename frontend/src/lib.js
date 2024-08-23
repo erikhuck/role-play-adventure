@@ -13,7 +13,7 @@ export const apiFetch = async (path, navigate, method = 'GET', body = undefined)
                 body: body ? JSON.stringify(body) : undefined
             }
         )
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             return await response.json()
         } else {
             let message = await response.text()
@@ -29,10 +29,12 @@ export const apiFetch = async (path, navigate, method = 'GET', body = undefined)
 export const getTurnName = globalState => (
     globalState.turns && globalState.currentTurn !== undefined ? globalState.turns[globalState.currentTurn].name : undefined)
 
-export const isPlayerTurn = globalState => getTurnName(globalState) === globalState.player.name
+export const isPlayerTurn = globalState => getTurnName(globalState) === globalState.playerName
 
 export const getFormData = (event) => {
     event.preventDefault()
     let formData = new FormData(event.target)
     return Object.fromEntries(formData.entries())
 }
+
+export const getPlayer = globalState => globalState.players && globalState.playerName ? globalState.players.find(obj => obj.name === globalState.playerName) : undefined

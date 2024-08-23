@@ -9,7 +9,7 @@ const Turns = ({updateGlobalState}) => {
     useEffect(() => {
         (async function () {
             const {currentTurn, turns} = await apiFetch('turns/add', navigate, 'POST', {
-                turnType: 'player', 'name': globalState.player.name
+                turnType: 'player', 'name': globalState.playerName
             })
             updateGlobalState({currentTurn, turns})
         })()

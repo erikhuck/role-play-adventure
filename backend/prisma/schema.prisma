@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AbilityTemplate {
+  name               String @id
+  effectedConditions Json?
+}
+
+model NPCAbilityTemplate {
+  id                  Int           @id @default(autoincrement())
+  name                String
+  effectedConditions  Json?
+  level               Int
+  npcTemplates        NPCTemplate[] @relation("NPCAbilityTemplates")
+}
+
+model ItemTemplate {
+  name                  String                  @id
+  weight                Int
+  price                 Int
+  effectedAbilities     Json?
+  effectedConditions    Json?
+  maxCharges            Int                     @default(5)
+  npcContainerTemplates NPCContainerTemplate[]  @relation("NPCItemTemplates")
+}
+
+model Item {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  weight             Int
+  price              Int
+  effectedAbilities  Json?
+  effectedConditions Json?
+  maxCharges         Int       @default(5)
+  charges            Int       @default(5)
+  containerId        Int
+  container          Container @relation(fields: [containerId], references: [id])
+}
+
+model ContainerTemplate {
+  name              String              @id
+  weightCapacity    Int
+}
+
+model NPCContainerTemplate {
+  id              Int             @id @default(autoincrement())
+  name            String
+  weightCapacity  Int
+  coins           Int
+  items           ItemTemplate[]  @relation("NPCItemTemplates")
+  npcName         String
+  npcTemplate     NPCTemplate     @relation("NPCContainerTemplates", fields: [npcName], references: [name])
+}
+
+model Container {
+  id              Int     @id @default(autoincrement())
+  name            String
+  weightCapacity  Int
+  location        String  @default("On person")
+  playerName      String?
+  npcId           Int?
+  npc             NPC?    @relation(fields: [npcId], references: [id])
+  player          Player? @relation(fields: [playerName], references: [name])
+  items           Item[]
+}
+
+model NPCTemplate {
+  name                String                  @id
+  maxHealth           Int                     @default(100)
+  maxStamina          Int                     @default(100)
+  carryingCapacity    Int                     @default(100)
+  abilityTemplates    NPCAbilityTemplate[]    @relation("NPCAbilityTemplates")
+  containerTemplates  NPCContainerTemplate[]  @relation("NPCContainerTemplates")
+}
+
+model NPC {
+  id          Int @id @default(autoincrement())
+  name        String
+  health      Int
+  stamina     Int
+  maxHealth   Int
+  maxStamina  Int
+  containers  Container[]
+  abilities   NPCAbility[]
+}
+
+model NPCAbility {
+  name               String
+  level              Int
+  tmpDiff            Int  @default(0)
+  effectedConditions Json
+  npcId              Int
+  npc                NPC  @relation(fields: [npcId], references: [id])
+  @@id([npcId, name])
+}
+
+model Player {
+  name          String  @id
+  fatigue       Int     @default(100)
+  hunger        Int     @default(100)
+  thirst        Int     @default(100)
+  happiness     Int     @default(100)
+  maxFatigue    Int     @default(100)
+  maxHunger     Int     @default(100)
+  maxThirst     Int     @default(100)
+  maxHappiness  Int     @default(100)
+  containers    Container[]
+  abilities     PlayerAbility[]
+}
+
+model PlayerAbility {
+  name               String
+  level              Int    @default(0)
+  xp                 Int    @default(0)
+  tmpDiff            Int    @default(0)
+  effectedConditions Json
+  playerName         String
+  player             Player @relation(fields: [playerName], references: [name])
+  @@id([playerName, name])
+}

@@ -1,1 +1,0 @@
-ngrok http http://127.0.0.1:5001/ --domain=wallaby-profound-hugely.ngrok-free.app

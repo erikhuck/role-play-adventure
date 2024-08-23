@@ -6,6 +6,7 @@ from routes.turns import turns_bp
 from routes.player import player_bp
 from routes.abilities import abilities_bp
 from routes.inventory import inventory_bp
+from routes.npcs import npcs_bp
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='')
@@ -36,3 +37,4 @@ app.register_blueprint(turns_bp)
 app.register_blueprint(player_bp)
 app.register_blueprint(abilities_bp)
 app.register_blueprint(inventory_bp)
+app.register_blueprint(npcs_bp)

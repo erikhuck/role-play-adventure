@@ -6,7 +6,7 @@ import GameMaster from '../pages/GameMaster.jsx'
 import Error from "../pages/Error.jsx"
 import {useCallback, useContext, useEffect} from "react"
 import {GlobalContext} from "./GlobalContext.jsx"
-
+import ErrorHandler from './ErrorHandler.jsx'
 const socket = io('/', {path: '/api/websocket'})
 
 
@@ -19,27 +19,20 @@ function App() {
         }))
     }, [setGlobalState])
     useEffect(() => {
-        (async function () {
-            // Cannot use apiFetch since navigate can only be used within a Router component which are defined below.
-            const response = await fetch('/api/conditions')
-            const conditions = await response.json()
-            updateGlobalState({conditions})
-        })()
-    }, [])
-    useEffect(() => {
-        // Listen for events from the web socket.
         socket.on('update-global-state', (data) => {
             updateGlobalState(data)
         })
     }, [])
     return (
         <Router>
-            <Routes>
-                <Route path="/login" element={<Login/>}/>
-                <Route path="/" element={<Player updateGlobalState={updateGlobalState}/>}/>
-                <Route path="/gamemaster" element={<GameMaster/>}/>
-                <Route path="/error" element={<Error/>}/>
-            </Routes>
+            <ErrorHandler>
+                <Routes>
+                    <Route path="/login" element={<Login updateGlobalState={updateGlobalState}/>}/>
+                    <Route path="/" element={<Player updateGlobalState={updateGlobalState}/>}/>
+                    <Route path="/gamemaster" element={<GameMaster/>}/>
+                    <Route path="/error" element={<Error/>}/>
+                </Routes>
+            </ErrorHandler>
         </Router>
     )
 }

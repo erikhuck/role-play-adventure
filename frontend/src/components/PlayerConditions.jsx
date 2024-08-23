@@ -1,18 +1,16 @@
 import React, {useContext, useEffect} from 'react'
-import {useNavigate} from "react-router-dom"
 import {GlobalContext} from "../main/GlobalContext.jsx"
-import {apiFetch} from "../lib.js"
+import {Condition} from '../../../shared.js'
+import {getPlayer} from '../lib.js'
 
-const PlayerConditions = ({updateGlobalState}) => {
+const PlayerConditions = () => {
     const {globalState} = useContext(GlobalContext)
-    let conditionData = undefined
-    if (globalState.conditions) {
-        conditionData = globalState.conditions.map(condition => ({
-            name: condition.charAt(0).toUpperCase() + condition.slice(1),
-            value: globalState.player[condition],
-            max: globalState.player[`max_${condition}`]
-        }))
-    }
+    const player = getPlayer(globalState)
+    const conditionData = Object.keys(Condition).map(condition => ({
+        name: condition,
+        value: player[Condition[condition]],
+        max: player[`max${condition}`]
+    }))
     return (
         <>
             <h2>Player Conditions</h2>

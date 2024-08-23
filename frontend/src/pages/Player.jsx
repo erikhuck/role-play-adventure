@@ -13,32 +13,30 @@ const Player = ({updateGlobalState}) => {
     const navigate = useNavigate()
     useEffect(() => {
         (async function () {
-            if (!globalState.player) {
-                const player = await apiFetch('player/', navigate)
-                if (player) {
-                    updateGlobalState({player})
-                } else {
-                    await navigate('/login')
-                }
+            const {playerName} = await apiFetch('player/name', navigate)
+            if (playerName) {
+                updateGlobalState({playerName})
+            } else {
+                await navigate('/login')
             }
         })()
     }, [])
     // noinspection com.intellij.reactbuddy.ExhaustiveDepsInspection
     const handleLogout = useCallback(async () => {
         await apiFetch('auth/logout', navigate, 'POST')
-        const playerIndex = globalState.turns.findIndex(turn => turn.name === globalState.player.name)
+        const playerIndex = globalState.turns.findIndex(turn => turn.name === globalState.playerName)
         await apiFetch('turns/drop', navigate, 'DELETE', {index: playerIndex})
         setGlobalState({})
         navigate('/login')
-    }, [setGlobalState, navigate, globalState.turns, globalState.player])
+    }, [setGlobalState, navigate, globalState.turns, globalState.playerName])
     return (
         <div>
-            {globalState.player ? (
+            {globalState.playerName ? (
                 <>
-                    <h1>{globalState.player.name}</h1>
+                    <h1>{globalState.playerName}</h1>
                     <Turns updateGlobalState={updateGlobalState}/>
                     <CollapsibleComponent label={'Conditions'}>
-                        <PlayerConditions updateGlobalState={updateGlobalState}/>
+                        <PlayerConditions/>
                     </CollapsibleComponent>
                     <CollapsibleComponent label="Abilities">
                         <PlayerAbilities/>
