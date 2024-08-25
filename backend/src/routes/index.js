@@ -1,14 +1,23 @@
-import express from 'express'
+import {Router} from 'express'
 import authRoutes from './auth.js'
 import turnsRoutes from './turns.js'
 import playerRoutes from './player.js'
 import abilitiesRoutes from './abilities.js'
 import inventoryRoutes from './inventory.js'
 import npcsRoutes from './npcs.js'
+import {getPlayer} from '../lib/index.js'
 import Database from '../lib/database.js'
+import TurnManager from '../lib/turns.js'
 
-const router = express.Router()
+const router = Router()
 
+router.get('/init', async (req, res) => {
+    const player = await getPlayer(req)
+    const playerName = player ? player.name : undefined
+    const players = await Database.getPlayers()
+    const initialState = {playerName, players, turns: TurnManager.turns, currentTurn: TurnManager.currentTurn}
+    return res.status(200).json(initialState)
+})
 router.use('/auth', authRoutes)
 router.use('/turns', turnsRoutes)
 router.use('/player', playerRoutes)

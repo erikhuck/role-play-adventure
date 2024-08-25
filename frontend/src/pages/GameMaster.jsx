@@ -8,7 +8,7 @@ const GameMaster = () => {
     const navigate = useNavigate()
     const handleNewTemplate = useCallback(async (event, path, navigate) => {
         const newTemplate = getFormData(event)
-        await apiFetch(path, navigate, 'POST', newTemplate)
+        await apiFetch(path, 'POST', newTemplate)
     }, [])
     const handleNewAbilityTemplate = useCallback(async (event) => {
         await handleNewTemplate(event, 'abilities/template', navigate)

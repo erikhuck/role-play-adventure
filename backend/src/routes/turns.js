@@ -5,24 +5,14 @@ import {objectInArray} from '../../../shared.js'
 
 const turnsRoutes = express.Router()
 
-const getTurns = (res) => {
-    return res.status(200).json({
-        currentTurn: TurnManager.currentTurn,
-        turns: TurnManager.turns
-    })
-}
-
-turnsRoutes.get('/', (req, res) => {
-    return getTurns(res)
-})
-
 turnsRoutes.post('/add', async (req, res) => {
     const {turnType, name} = req.body
+    const turnAdded = res => res.status(201).json({message: `${name} added to turns`})
     let turn = null
     if (turnType === 'player') {
         turn = await Database.getPlayer(name)
         if (objectInArray(turn, TurnManager.turns)) {
-            return getTurns(res)
+            return turnAdded(res)
         }
     } else if (turnType === 'npc') {
         turn = Database.getNPC(name)
@@ -30,7 +20,7 @@ turnsRoutes.post('/add', async (req, res) => {
         return res.status(400).text('Invalid turn type')
     }
     TurnManager.addTurn(turn)
-    return getTurns(res)
+    return turnAdded(res)
 })
 
 turnsRoutes.delete('/drop', (req, res) => {

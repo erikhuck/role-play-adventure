@@ -1,26 +1,40 @@
-import React, {useState, useEffect} from 'react';
-import {useNavigate, createSearchParams} from 'react-router-dom';
+import React, {Component} from 'react'
+import Error from '../components/Error.jsx'
 
-function ErrorHandler({children}) {
-    const [eventListenerSet, setEventListenerSet] = useState(false)
-    const navigate = useNavigate()
-    useEffect(() => {
-        const handleError = (error) => {
-            navigate(`/error?${createSearchParams({message: error.message})}`)
+
+// noinspection JSUnresolvedReference
+class ErrorHandler extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {errorMessage: null}
+    }
+
+    static getDerivedStateFromError(error) {
+        return {errorMessage: error.message}
+    }
+
+    componentDidMount() {
+        window.addEventListener('error', this.handleGlobalError)
+        window.addEventListener('unhandledrejection', this.handlePromiseRejection)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('error', this.handleGlobalError)
+        window.removeEventListener('unhandledrejection', this.handlePromiseRejection)
+    }
+
+    handleGlobalError = (event) => this.setState({errorMessage: event.error.message})
+
+    handlePromiseRejection = (event) => this.setState({errorMessage: event.reason.message})
+
+    resetError = () => this.setState({errorMessage: null})
+
+    render() {
+        if (this.state.errorMessage) {
+            return <Error errorMessage={this.state.errorMessage} resetErrorMessage={this.resetError}/>
         }
-        try {
-            window.addEventListener('error', handleError)
-            setEventListenerSet(true)
-        } catch (error) {
-            console.error('ERROR ADDING ERROR HANDLER:\n', error)
-        }
-    }, [])
-    return (!eventListenerSet ? (
-        <div>Loading app...</div>
-        ) : (
-            {children}
-        )
-    )
+        return this.props.children
+    }
 }
 
-export default ErrorHandler;
+export default ErrorHandler

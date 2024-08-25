@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useCallback} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {apiFetch} from "../lib.js"
-import {GlobalContext} from "../main/GlobalContext.jsx"
-import Turns from '../components/Turns.jsx'
+import GlobalContext from "../main/GlobalContext.jsx"
+import PlayerTurns from '../components/PlayerTurns.jsx'
 import PlayerConditions from "../components/PlayerConditions.jsx"
 import PlayerAbilities from "../components/PlayerAbilities.jsx"
 import PlayerInventory from "../components/PlayerInventory.jsx"
@@ -12,21 +12,15 @@ const Player = ({updateGlobalState}) => {
     const {globalState, setGlobalState} = useContext(GlobalContext)
     const navigate = useNavigate()
     useEffect(() => {
-        (async function () {
-            const {playerName} = await apiFetch('player/name', navigate)
-            if (playerName) {
-                updateGlobalState({playerName})
-            } else {
-                await navigate('/login')
-            }
-        })()
+        if (!globalState.playerName) {
+            navigate('/login')
+        }
     }, [])
-    // noinspection com.intellij.reactbuddy.ExhaustiveDepsInspection
     const handleLogout = useCallback(async () => {
-        await apiFetch('auth/logout', navigate, 'POST')
+        await apiFetch('auth/logout', 'POST')
         const playerIndex = globalState.turns.findIndex(turn => turn.name === globalState.playerName)
-        await apiFetch('turns/drop', navigate, 'DELETE', {index: playerIndex})
-        setGlobalState({})
+        await apiFetch('turns/drop', 'DELETE', {index: playerIndex})
+        updateGlobalState({playerName: undefined})
         navigate('/login')
     }, [setGlobalState, navigate, globalState.turns, globalState.playerName])
     return (
@@ -34,7 +28,7 @@ const Player = ({updateGlobalState}) => {
             {globalState.playerName ? (
                 <>
                     <h1>{globalState.playerName}</h1>
-                    <Turns updateGlobalState={updateGlobalState}/>
+                    <PlayerTurns updateGlobalState={updateGlobalState}/>
                     <CollapsibleComponent label={'Conditions'}>
                         <PlayerConditions/>
                     </CollapsibleComponent>
@@ -47,7 +41,7 @@ const Player = ({updateGlobalState}) => {
                     <button onClick={handleLogout}>Logout</button>
                 </>
             ) : (
-                <p>Loading player...</p>
+                <p>Navigating to login...</p>
             )}
         </div>
     )
