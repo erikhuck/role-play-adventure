@@ -1,22 +1,19 @@
 import React, {useCallback, useContext, useEffect} from "react"
-import {useNavigate} from "react-router-dom"
-import {GlobalContext} from "../main/GlobalContext.jsx"
+import GlobalContext from "../main/GlobalContext.jsx"
 import {apiFetch, getTurnName, isPlayerTurn} from "../lib.js"
 
-const Turns = ({updateGlobalState}) => {
+const PlayerTurns = () => {
     const {globalState} = useContext(GlobalContext)
-    const navigate = useNavigate()
     useEffect(() => {
-        (async function () {
-            const {currentTurn, turns} = await apiFetch('turns/add', navigate, 'POST', {
+        (async () => {
+            await apiFetch('turns/add', 'POST', {
                 turnType: 'player', 'name': globalState.playerName
             })
-            updateGlobalState({currentTurn, turns})
         })()
     }, [])
     const handleNextTurn = useCallback(async () => {
-        await apiFetch('turns/next', navigate, 'PUT')
-    }, [navigate])
+        await apiFetch('turns/next', 'PUT')
+    }, [])
     const turnName = getTurnName(globalState)
     return (
         <>
@@ -37,12 +34,11 @@ const Turns = ({updateGlobalState}) => {
                         <p>It's {turnName}'s turn</p>
                     )}
                 </ul>
-
             ) : (
-                <p>Loading turns...</p>
+                <p>Adding player to turns...</p>
             )}
         </>
     )
 }
 
-export default Turns
+export default PlayerTurns

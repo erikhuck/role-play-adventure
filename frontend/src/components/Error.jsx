@@ -1,8 +1,7 @@
 import React from 'react'
-import {useLocation, useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 
-const Error = () => {
-    const location = useLocation()
+const Error = ({errorMessage, resetErrorMessage}) => {
     const navigate = useNavigate()
     const isValidHTML = (htmlString) => {
         const parser = new DOMParser()
@@ -17,14 +16,10 @@ const Error = () => {
         }
         return true
     }
-    const getQueryParam = (param) => {
-        const params = new URLSearchParams(location.search)
-        return params.get(param)
-    }
     const handleBackToHome = () => {
+        resetErrorMessage()
         navigate('/')
     }
-    const errorMessage = getQueryParam('message') || 'An unknown error occurred'
     return (
         <div style={{padding: '20px', textAlign: 'center'}}>
             <h1>Error</h1>

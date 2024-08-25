@@ -102,10 +102,14 @@ model NPCAbility {
 
 model Player {
   name          String  @id
+  health        Int     @default(100)
+  stamina       Int     @default(100)
   fatigue       Int     @default(100)
   hunger        Int     @default(100)
   thirst        Int     @default(100)
   happiness     Int     @default(100)
+  maxHealth     Int     @default(100)
+  maxStamina    Int     @default(100)
   maxFatigue    Int     @default(100)
   maxHunger     Int     @default(100)
   maxThirst     Int     @default(100)
