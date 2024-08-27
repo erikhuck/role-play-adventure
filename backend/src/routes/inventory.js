@@ -1,6 +1,6 @@
-import express from 'express'
+import {Router} from 'express'
 
-const inventoryRoutes = express.Router()
+const inventoryRoutes = Router()
 
 inventoryRoutes.post('/item/template', (req, res) => {
     // TODO

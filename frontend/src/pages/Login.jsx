@@ -11,11 +11,11 @@ const Login = ({updateGlobalState}) => {
         const responseBody = await apiFetch('auth/login', 'POST', {playerName})
         updateGlobalState({playerName: responseBody.playerName})
         navigate('/')
-    }, [navigate])
+    }, [navigate, updateGlobalState])
     const handleNewPlayer = useCallback(async (event) => {
         const {newPlayerName} = getFormData(event)
         await apiFetch('player/new', 'POST', {newPlayerName})
-    }, [navigate])
+    }, [])
     return (
         <>
             <h1>Login</h1>

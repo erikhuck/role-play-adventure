@@ -1,10 +1,13 @@
 import React, {useState} from 'react'
-import {Condition} from '../../../shared.js'
+import {Condition} from '../../../../shared.js'
 
 const ConditionSliders = ({sliderCategory}) => {
     const capitalizedConditions = Object.keys(Condition)
     const [sliderValues, setSliderValues] = useState(
-        capitalizedConditions.reduce((acc, condition) => ({...acc, [condition]: 0}), {})
+        capitalizedConditions.reduce((acc, condition) => ({
+            ...acc,
+            [condition]: 0
+        }), {})
     )
     const handleSliderChange = (condition, event) => {
         const newValue = event.target.value

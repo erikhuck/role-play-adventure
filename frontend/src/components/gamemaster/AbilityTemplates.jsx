@@ -1,13 +1,20 @@
-import ConditionSliders from '../ConditionSliders.jsx'
+import ConditionSliders from './ConditionSliders.jsx'
 
-const AbilityTemplates = ({abilityTemplates, handleNewAbilityTemplate, deleteAbilityTemplate}) => {
+const AbilityTemplates = ({
+                              abilityTemplates,
+                              handleNewAbilityTemplate,
+                              deleteAbilityTemplate
+                          }) => {
     return (
         <>
             <h2>Ability Templates</h2>
             <h3>Current Ability Templates</h3>
             <ul>
                 {
-                    abilityTemplates.map(({name, effectedConditions}) => (
+                    abilityTemplates.map(({
+                                              name,
+                                              effectedConditions
+                                          }) => (
                         <li key={name}>
                             <p>{name}</p>
                             Effected Conditions:
