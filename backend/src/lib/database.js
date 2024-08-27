@@ -2,6 +2,8 @@ import {PrismaClient} from '@prisma/client'
 import io from './websocket.js'
 
 const prisma = new PrismaClient()
+
+// noinspection JSUnresolvedReference
 class Database {
     static async getPlayer(name) {
         const player = await prisma.player.findUnique({where: {name}, include: {containers: true, abilities: true}})
@@ -17,8 +19,26 @@ class Database {
         const playerNames = players.map(player => player.name)
         return playerNames
     }
+
+    static async #getTemplates(model) {
+        const templates = await model.findMany()
+        return templates
+    }
+
+    static async getAbilityTemplates() {
+        return await this.#getTemplates(prisma.abilityTemplate)
+    }
+
+    static async getItemTemplates() {
+        return await this.#getTemplates(prisma.itemTemplate)
+    }
+
+    static async getNpcTemplates() {
+        return await this.#getTemplates(prisma.npcTemplate)
+    }
+
     static async addPlayer(name) {
-        const abilityTemplates = await prisma.abilityTemplate.findMany()
+        const abilityTemplates = await Database.getAbilityTemplates()
         await prisma.player.create({
             data: {
                 name,
@@ -35,9 +55,8 @@ class Database {
     }
 
     static async addAbilityTemplate(template) {
-        // TODO test
         await prisma.abilityTemplate.create({data: template})
-        const abilityTemplates = await prisma.abilityTemplate.findMany()
+        const abilityTemplates = await Database.getAbilityTemplates()
         let players = await Database.getPlayers()
         for (const player of players) {
             const abilityNames = player.abilities.map(ability => ability.name)
@@ -48,18 +67,18 @@ class Database {
                     },
                     data: {
                         abilities: {
-                            connect: [template]
+                            create: template
                         }
                     }
                 })
             }
         }
         players = await Database.getPlayers()
-        io.emit('update-global-state', {abilityTemplates})
         io.emit('update-global-state', {players})
+        return abilityTemplates
     }
 
-    static async addNPC(name) {
+    static async addNpc(name) {
         // TODO test
         const characterTemplate = await prisma.characterTemplate.findUnique({
             where: { name },
@@ -104,7 +123,7 @@ class Database {
         return npc
     }
 
-    static async addNPCAbility(name, npcName, abilityData) {
+    static async addNpcAbility(name, npcName, abilityData) {
         // TODO test
         const npc = await prisma.nPC.findUnique({
             where: { name: npcName },
@@ -131,8 +150,6 @@ class Database {
         const itemTemplate = await prisma.itemTemplate.create({
             data: templateData,
         })
-
-        io.emit('update-global-state', { itemTemplate })
         return itemTemplate
     }
 
@@ -141,29 +158,33 @@ class Database {
         const containerTemplate = await prisma.containerTemplate.create({
             data: templateData,
         })
-
-        io.emit('update-global-state', { containerTemplate })
         return containerTemplate
     }
 
+    static async deleteTemplate(name, model) {
+        await model.delete({where: {name}})
+        const templates = await Database.#getTemplates(model)
+        const players = await Database.getPlayers()
+        io.emit('update-global-state', {players})
+        return templates
+    }
     static async deleteAbilityTemplate(name) {
-        // TODO this can be re-used by deleteContainerTemplate and deleteAbilityTemplate in a helper function
-        await prisma.abilityTemplate.delete({
-            where: { name },
-        })
-        io.emit('update-global-state', { deleted: { abilityTemplate: name } })
+        await prisma.npcAbilityTemplate.deleteMany({where: {name}})
+        await prisma.npcAbility.deleteMany({where: {name}})
+        await prisma.playerAbility.deleteMany({where: {name}})
+        return await Database.deleteTemplate(name, prisma.abilityTemplate)
     }
 
     static async deleteItemTemplate(name) {
-        await prisma.itemTemplate.delete({where: {name}})
-        const itemTemplates = await prisma.itemTemplate.findMany()
-        io.emit('update-global-state', {itemTemplates})
+        return await Database.deleteTemplate(name, prisma.itemTemplate)
     }
 
     static async deleteContainerTemplate(name) {
-        await prisma.containerTemplate.delete({where: {name}})
-        const containerTemplates = await prisma.containerTemplate.findMany()
-        io.emit('update-global-state', {containerTemplates})
+        return await Database.deleteTemplate(name, prisma.containerTemplate)
+    }
+
+    static async deleteNpcTemplate(name) {
+        return await Database.deleteTemplate(name, prisma.npcTempalte)
     }
 
     static async abilityCheck(success, playerName, abilityName) {

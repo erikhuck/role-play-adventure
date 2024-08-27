@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useEffect} from "react"
-import GlobalContext from "../main/GlobalContext.jsx"
-import {apiFetch, getTurnName, isPlayerTurn} from "../lib.js"
+import GlobalContext from "../../main/GlobalContext.jsx"
+import {apiFetch, getTurnName, isPlayerTurn} from "../../lib.js"
 
 const PlayerTurns = () => {
     const {globalState} = useContext(GlobalContext)

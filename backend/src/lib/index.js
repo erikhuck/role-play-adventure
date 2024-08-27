@@ -12,3 +12,9 @@ export const getPlayer = async (req) => {
         return await Database.getPlayer(playerName)
     }
 }
+
+export const deleteTemplate = async (req, res, deleteFunc) => {
+    const {name} = req.body
+    const templates = await deleteFunc(name)
+    return res.status(200).send({templates})
+}

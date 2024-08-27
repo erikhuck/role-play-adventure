@@ -1,6 +1,6 @@
 import {useContext} from "react"
-import GlobalContext from "../main/GlobalContext.jsx"
-import {getPlayer} from '../lib.js'
+import GlobalContext from "../../main/GlobalContext.jsx"
+import {getPlayer} from '../../lib.js'
 
 const PlayerAbilities = () => {
     const {globalState} = useContext(GlobalContext)
@@ -12,7 +12,7 @@ const PlayerAbilities = () => {
             {player.abilities.length > 0 ? (
                 <ul>
                     {player.abilities.map(ability => (
-                        <li>
+                        <li key={ability.name}>
                             <p>{ability.name}</p>
                         </li>
                     ))}

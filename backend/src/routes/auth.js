@@ -8,7 +8,7 @@ authRoutes.post('/login', (req, res) => {
         req.session.playerName = playerName
         return res.status(201).json({playerName})
     }
-    return res.status(400).text('Invalid player name')
+    return res.status(400).send('Invalid player name')
 })
 
 authRoutes.post('/logout', (req, res) => {

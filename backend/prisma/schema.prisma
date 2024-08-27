@@ -12,12 +12,12 @@ model AbilityTemplate {
   effectedConditions Json?
 }
 
-model NPCAbilityTemplate {
+model NpcAbilityTemplate {
   id                  Int           @id @default(autoincrement())
   name                String
   effectedConditions  Json?
   level               Int
-  npcTemplates        NPCTemplate[] @relation("NPCAbilityTemplates")
+  NpcTemplates        NpcTemplate[] @relation("NpcAbilityTemplates")
 }
 
 model ItemTemplate {
@@ -27,7 +27,7 @@ model ItemTemplate {
   effectedAbilities     Json?
   effectedConditions    Json?
   maxCharges            Int                     @default(5)
-  npcContainerTemplates NPCContainerTemplate[]  @relation("NPCItemTemplates")
+  npcContainerTemplates NpcContainerTemplate[]  @relation("NpcItemTemplates")
 }
 
 model Item {
@@ -48,14 +48,14 @@ model ContainerTemplate {
   weightCapacity    Int
 }
 
-model NPCContainerTemplate {
+model NpcContainerTemplate {
   id              Int             @id @default(autoincrement())
   name            String
   weightCapacity  Int
   coins           Int
-  items           ItemTemplate[]  @relation("NPCItemTemplates")
+  items           ItemTemplate[]  @relation("NpcItemTemplates")
   npcName         String
-  npcTemplate     NPCTemplate     @relation("NPCContainerTemplates", fields: [npcName], references: [name])
+  npcTemplate     NpcTemplate     @relation("NpcContainerTemplates", fields: [npcName], references: [name])
 }
 
 model Container {
@@ -65,21 +65,21 @@ model Container {
   location        String  @default("On person")
   playerName      String?
   npcId           Int?
-  npc             NPC?    @relation(fields: [npcId], references: [id])
+  npc             Npc?    @relation(fields: [npcId], references: [id])
   player          Player? @relation(fields: [playerName], references: [name])
   items           Item[]
 }
 
-model NPCTemplate {
+model NpcTemplate {
   name                String                  @id
   maxHealth           Int                     @default(100)
   maxStamina          Int                     @default(100)
   carryingCapacity    Int                     @default(100)
-  abilityTemplates    NPCAbilityTemplate[]    @relation("NPCAbilityTemplates")
-  containerTemplates  NPCContainerTemplate[]  @relation("NPCContainerTemplates")
+  abilityTemplates    NpcAbilityTemplate[]    @relation("NpcAbilityTemplates")
+  containerTemplates  NpcContainerTemplate[]  @relation("NpcContainerTemplates")
 }
 
-model NPC {
+model Npc {
   id          Int @id @default(autoincrement())
   name        String
   health      Int
@@ -87,16 +87,16 @@ model NPC {
   maxHealth   Int
   maxStamina  Int
   containers  Container[]
-  abilities   NPCAbility[]
+  abilities   NpcAbility[]
 }
 
-model NPCAbility {
+model NpcAbility {
   name               String
   level              Int
   tmpDiff            Int  @default(0)
   effectedConditions Json
   npcId              Int
-  npc                NPC  @relation(fields: [npcId], references: [id])
+  npc                Npc  @relation(fields: [npcId], references: [id])
   @@id([npcId, name])
 }
 
