@@ -2,10 +2,10 @@ import React, {useContext, useEffect, useCallback} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {apiFetch} from "../lib.js"
 import GlobalContext from "../main/GlobalContext.jsx"
-import PlayerTurns from '../components/PlayerTurns.jsx'
-import PlayerConditions from "../components/PlayerConditions.jsx"
-import PlayerAbilities from "../components/PlayerAbilities.jsx"
-import PlayerInventory from "../components/PlayerInventory.jsx"
+import PlayerTurns from '../components/player/PlayerTurns.jsx'
+import PlayerConditions from "../components/player/PlayerConditions.jsx"
+import PlayerAbilities from "../components/player/PlayerAbilities.jsx"
+import PlayerInventory from "../components/player/PlayerInventory.jsx"
 import CollapsibleComponent from "../components/CollapsibleComponent.jsx"
 
 const Player = ({updateGlobalState}) => {

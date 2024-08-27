@@ -10,7 +10,7 @@ playerRouter.post('/new', async (req, res) => {
         await Database.addPlayer(newPlayerName)
         res.status(201).json({message: `Player "${newPlayerName} added`})
     } else {
-        res.status(400).text('Player already exists')
+        res.status(400).send('Player already exists')
     }
 })
 

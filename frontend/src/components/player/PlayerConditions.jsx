@@ -1,7 +1,7 @@
 import React, {useContext} from 'react'
-import GlobalContext from "../main/GlobalContext.jsx"
-import {Condition} from '../../../shared.js'
-import {getPlayer} from '../lib.js'
+import GlobalContext from "../../main/GlobalContext.jsx"
+import {Condition} from '../../../../shared.js'
+import {getPlayer} from '../../lib.js'
 
 const PlayerConditions = () => {
     const {globalState} = useContext(GlobalContext)
