@@ -6,23 +6,23 @@ import PlayerTurns from '../components/player/PlayerTurns.jsx'
 import PlayerConditions from "../components/player/PlayerConditions.jsx"
 import PlayerAbilities from "../components/player/PlayerAbilities.jsx"
 import PlayerInventory from "../components/player/PlayerInventory.jsx"
-import CollapsibleComponent from "../components/CollapsibleComponent.jsx"
+import CollapsibleComponent from "../components/general/CollapsibleComponent.jsx"
 
 const Player = ({updateGlobalState}) => {
-    const {globalState, setGlobalState} = useContext(GlobalContext)
+    const {globalState} = useContext(GlobalContext)
     const navigate = useNavigate()
     useEffect(() => {
         if (!globalState.playerName) {
             navigate('/login')
         }
-    }, [])
+    }, [globalState.playerName, navigate])
     const handleLogout = useCallback(async () => {
         await apiFetch('auth/logout', 'POST')
         const playerIndex = globalState.turns.findIndex(turn => turn.name === globalState.playerName)
         await apiFetch('turns/drop', 'DELETE', {index: playerIndex})
         updateGlobalState({playerName: undefined})
         navigate('/login')
-    }, [setGlobalState, navigate, globalState.turns, globalState.playerName])
+    }, [globalState.turns, globalState.playerName, updateGlobalState, navigate])
     return (
         <div>
             {globalState.playerName ? (

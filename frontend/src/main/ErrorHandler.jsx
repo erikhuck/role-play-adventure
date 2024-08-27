@@ -1,6 +1,49 @@
 import React, {Component} from 'react'
-import Error from '../components/Error.jsx'
+import {useNavigate} from 'react-router-dom'
 
+const Error = ({
+                   errorMessage,
+                   resetErrorMessage
+               }) => {
+    const navigate = useNavigate()
+    const isValidHTML = (htmlString) => {
+        // eslint-disable-next-line no-undef
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(htmlString, 'text/html')
+        if (doc.documentElement.nodeName !== 'HTML') {
+            return false
+        }
+        for (const child of doc.documentElement.childNodes) {
+            if (child.nodeName === 'parsererror') {
+                return false
+            }
+        }
+        return true
+    }
+    const handleBackToHome = () => {
+        resetErrorMessage()
+        navigate('/')
+    }
+    return (
+        <div style={{
+            padding: '20px',
+            textAlign: 'center'
+        }}>
+            <h1>Error</h1>
+            {isValidHTML(errorMessage) ? (
+                <div dangerouslySetInnerHTML={{__html: errorMessage}}/>
+            ) : (
+                <p>{errorMessage}</p>
+            )}
+            <button onClick={handleBackToHome} style={{
+                marginTop: '20px',
+                padding: '10px 20px'
+            }}>
+                Back to Home
+            </button>
+        </div>
+    )
+}
 
 // noinspection JSUnresolvedReference
 class ErrorHandler extends Component {
@@ -14,12 +57,16 @@ class ErrorHandler extends Component {
     }
 
     componentDidMount() {
+        // eslint-disable-next-line no-undef
         window.addEventListener('error', this.handleGlobalError)
+        // eslint-disable-next-line no-undef
         window.addEventListener('unhandledrejection', this.handlePromiseRejection)
     }
 
     componentWillUnmount() {
+        // eslint-disable-next-line no-undef
         window.removeEventListener('error', this.handleGlobalError)
+        // eslint-disable-next-line no-undef
         window.removeEventListener('unhandledrejection', this.handlePromiseRejection)
     }
 

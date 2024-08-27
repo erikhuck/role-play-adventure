@@ -1,6 +1,6 @@
-import express from 'express'
+import {Router} from 'express'
 
-const npcsRoutes = express.Router()
+const npcsRoutes = Router()
 
 npcsRoutes.post('/template', (req, res) => {
     // TODO

@@ -6,11 +6,30 @@ const prisma = new PrismaClient()
 // noinspection JSUnresolvedReference
 class Database {
     static async getPlayer(name) {
-        const player = await prisma.player.findUnique({where: {name}, include: {containers: true, abilities: true}})
+        const player = await prisma.player.findUnique({
+            where: {name},
+            include: {
+                containers: true,
+                abilities: true
+            }
+        })
         return player
     }
+
+    static async getNpc(name) {
+        const npc = await prisma.npc.findUnique({
+            where: {name}
+        })
+        return npc
+    }
+
     static async getPlayers() {
-        const players = await prisma.player.findMany({include: {containers: true, abilities: true}})
+        const players = await prisma.player.findMany({
+            include: {
+                containers: true,
+                abilities: true
+            }
+        })
         return players
     }
 
@@ -46,7 +65,10 @@ class Database {
                     create: abilityTemplates
                 },
                 containers: {
-                    create: [{name: 'satchel', weightCapacity: 50}]
+                    create: [{
+                        name: 'satchel',
+                        weightCapacity: 50
+                    }]
                 }
             }
         })
@@ -81,7 +103,7 @@ class Database {
     static async addNpc(name) {
         // TODO test
         const characterTemplate = await prisma.characterTemplate.findUnique({
-            where: { name },
+            where: {name},
         })
 
         if (!characterTemplate) throw new Error('Character template not found')
@@ -119,14 +141,14 @@ class Database {
             },
         })
 
-        io.emit('update-global-state', { npc })
+        io.emit('update-global-state', {npc})
         return npc
     }
 
     static async addNpcAbility(name, npcName, abilityData) {
         // TODO test
         const npc = await prisma.nPC.findUnique({
-            where: { name: npcName },
+            where: {name: npcName},
         })
 
         if (!npc) throw new Error('NPC not found')
@@ -136,12 +158,12 @@ class Database {
                 name,
                 ...abilityData,
                 npcs: {
-                    connect: { name: npcName },
+                    connect: {name: npcName},
                 },
             },
         })
 
-        io.emit('update-global-state', { npcAbility })
+        io.emit('update-global-state', {npcAbility})
         return npcAbility
     }
 
@@ -168,6 +190,7 @@ class Database {
         io.emit('update-global-state', {players})
         return templates
     }
+
     static async deleteAbilityTemplate(name) {
         await prisma.npcAbilityTemplate.deleteMany({where: {name}})
         await prisma.npcAbility.deleteMany({where: {name}})
@@ -203,7 +226,7 @@ class Database {
             data: {
                 abilities: {
                     update: {
-                        where: { name: abilityName },
+                        where: {name: abilityName},
                         data: {
                             xp: {
                                 increment: success ? 1 : 0

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import express from 'express'
 import {createServer} from 'http'
 import bodyParser from 'body-parser'
@@ -20,16 +21,21 @@ app.use(cookieSession({
 }))
 app.use(cors())
 app.use(bodyParser.json())
+// noinspection JSUnresolvedReference
 app.use(bodyParser.urlencoded({extended: true}))
+// noinspection JSUnresolvedReference
 app.use(express.static('../frontend/dist'))
 app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: '../frontend/dist' })
+    // noinspection JSUnresolvedReference
+    res.sendFile('index.html', {root: '../frontend/dist'})
 })
 app.get('/:path', (req, res) => {
     console.log(`React router path: ${req.params.path}`)
-    res.sendFile('index.html', { root: '../frontend/dist' })
+    // noinspection JSUnresolvedReference
+    res.sendFile('index.html', {root: '../frontend/dist'})
 })
 app.use('/api', routes)
+// noinspection JSUnresolvedReference
 io.attach(server)
 const port = 5001
 server.listen(port, () => {

@@ -1,6 +1,9 @@
 import React, {useState} from 'react'
 
-const CollapsibleComponent = ({label, children}) => {
+const CollapsibleComponent = ({
+                                  label,
+                                  children
+                              }) => {
     const [isOpen, setIsOpen] = useState(false)
     const toggle = () => setIsOpen(!isOpen)
     return (

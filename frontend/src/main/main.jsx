@@ -5,7 +5,10 @@ import ErrorHandler from './ErrorHandler.jsx'
 import App from './App.jsx'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// noinspection JSUnresolvedReference,JSXUnresolvedComponent
+ReactDOM.createRoot(
+    // eslint-disable-next-line no-undef
+    document.getElementById('root')).render(
     <React.StrictMode>
         <Router>
             <ErrorHandler>

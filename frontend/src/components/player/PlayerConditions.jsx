@@ -1,5 +1,5 @@
 import React, {useContext} from 'react'
-import GlobalContext from "../../main/GlobalContext.jsx"
+import GlobalContext from '../../main/GlobalContext.jsx'
 import {Condition} from '../../../../shared.js'
 import {getPlayer} from '../../lib.js'
 
@@ -15,7 +15,11 @@ const PlayerConditions = () => {
         <>
             <h2>Player Conditions</h2>
             <ul>
-                {conditionData.map(({name, value, max}) => (
+                {conditionData.map(({
+                                        name,
+                                        value,
+                                        max
+                                    }) => (
                     <li key={name}>
                         {name}: {value} / {max}
                     </li>
