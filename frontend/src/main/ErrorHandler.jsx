@@ -70,9 +70,13 @@ class ErrorHandler extends Component {
         window.removeEventListener('unhandledrejection', this.handlePromiseRejection)
     }
 
-    handleGlobalError = (event) => this.setState({errorMessage: event.error.message})
+    handleGlobalError = (event) => {
+        this.setState({errorMessage: event.error.message})
+    }
 
-    handlePromiseRejection = (event) => this.setState({errorMessage: event.reason.message})
+    handlePromiseRejection = (event) => {
+        this.setState({errorMessage: event.reason.message})
+    }
 
     resetError = () => this.setState({errorMessage: null})
 

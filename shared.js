@@ -7,6 +7,19 @@ export const Condition = {
     Happiness: 'happiness'
 }
 
+export const MaxXp = 10
+export const MaxLevel = 10
+
+export const CharacterType = {
+    Player: 'player',
+    Npc: 'npc'
+}
+
+export const AbilityCheckTargetType = {
+    DifficultyLevel: 'DifficultyLevel',
+    Character: 'Character'
+}
+
 export const arraysEqual = (a1, a2) => a1.length === a2.length && a1.every((item, index) => objectsEqual(item, a2[index]))
 
 export const objectsEqual = (o1, o2) => {

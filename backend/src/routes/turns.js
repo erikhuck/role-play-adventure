@@ -1,26 +1,26 @@
 import {Router} from 'express'
 import TurnManager from '../lib/turns.js'
 import Database from '../lib/database.js'
-import {objectInArray} from '../../../shared.js'
+import {objectInArray, CharacterType} from '../../../shared.js'
 
 const turnsRoutes = Router()
 
 turnsRoutes.post('/add', async (req, res) => {
     const {
-        turnType,
+        characterType,
         name
     } = req.body
     let turn = null
-    if (turnType === 'player') {
+    if (characterType === CharacterType.Player) {
         turn = await Database.getPlayer(name)
-    } else if (turnType === 'npc') {
+    } else if (characterType === CharacterType.Npc) {
         turn = await Database.getNpc(name)
     } else {
         return res.status(400).send('Invalid turn type')
     }
     turn = {
         name: turn.name,
-        turnType
+        characterType
     }
     if (!objectInArray(turn, TurnManager.turns)) {
         TurnManager.addTurn(turn)
@@ -38,8 +38,8 @@ turnsRoutes.delete('/drop', (req, res) => {
     }
 })
 
-turnsRoutes.put('/next', (req, res) => {
-    TurnManager.nextTurn()
+turnsRoutes.put('/next', async (req, res) => {
+    await TurnManager.nextTurn()
     return res.json({message: `Now at turn number ${TurnManager.currentTurn}`})
 })
 

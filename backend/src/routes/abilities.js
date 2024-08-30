@@ -1,8 +1,7 @@
 import {Router} from 'express'
 import {getPlayer, deleteTemplate} from '../lib/index.js'
 import Database from '../lib/database.js'
-import TurnManager from '../lib/turns.js'
-import {Condition} from '../../../shared.js'
+import {Condition, CharacterType, AbilityCheckTargetType} from '../../../shared.js'
 import {randomInt} from 'crypto'
 
 const abilitiesRoutes = Router()
@@ -14,37 +13,44 @@ abilitiesRoutes.post('/check', async (req, res) => {
     if (!player) return res.status(400).send('Player not found')
     const {
         abilityName,
-        targetType,
-        difficultyLevel,
-        characterIndex,
-        targetAbility
+        targetType
     } = req.body
-    const ability = player.abilities[abilityName]
+    const findAbility = (abilities, name) => abilities.find(ability => ability.name === name)
+    const ability = findAbility(player.abilities, abilityName)
     if (!ability) return res.status(400).send('Ability not found')
     let targetCheck
-    if (targetType === 'difficulty_level') {
-        targetCheck = parseInt(difficultyLevel, 10)
-    } else if (targetType === 'character') {
-        const character = TurnManager.turns[parseInt(characterIndex, 10)]
+    if (targetType === AbilityCheckTargetType.DifficultyLevel) {
+        const {difficultyLevel} = req.body
+        targetCheck = difficultyLevel
+    } else if (targetType === AbilityCheckTargetType.Character) {
+        const {
+            characterName,
+            characterType,
+            characterAbilityName
+        } = req.body
+        let character
+        if (characterType === CharacterType.Player) {
+            character = await Database.getPlayer(characterName)
+        } else {
+            character = await Database.getNpc(characterName)
+        }
         if (!character) return res.status(400).send('Character not found')
-        const targetAbilityObject = character.abilities[targetAbility]
-        if (!targetAbilityObject) return res.status(400).send('Target ability not found')
-        targetCheck = targetAbilityObject.level + targetAbilityObject.tmpDiff + getRandomInt(1, 20)
+        const characterAbility = findAbility(character.abilities, characterAbilityName)
+        if (!characterAbility) return res.status(400).send('Character ability not found')
+        targetCheck = characterAbility.level + characterAbility.tmpDiff + getRandomInt(1, 20)
     } else {
         return res.status(400).send('Invalid ability check target type')
     }
-    const abilityCheck = getRandomInt(1, 20)
-    const total = abilityCheck + ability.level + ability.tmpDiff
-    const success = abilityCheck >= targetCheck
-    await Database.abilityCheck(success, player.name, abilityName)
-    return res.status(200).json({
+    const check = getRandomInt(1, 20)
+    const total = check + ability.level + ability.tmpDiff
+    const success = check >= targetCheck
+    await Database.abilityCheck(success, player, ability)
+    return res.status(201).json({
         success,
         abilityName,
-        abilityLevel: ability.level,
-        abilityCheck,
-        checkTotal: total,
-        targetCheck,
-        tmpDiff: ability.tmpDiff
+        check,
+        total,
+        targetCheck
     })
 })
 
@@ -57,7 +63,7 @@ abilitiesRoutes.post('/template', async (req, res) => {
             let condition = key.replace('abilitySlider', '')
             condition = Condition[condition]
             const value = parseInt(req.body[key], 10)
-            if (value > 0) acc[condition] = value
+            if (value > 0) acc[condition] = -value
             return acc
         }, {})
     try {
