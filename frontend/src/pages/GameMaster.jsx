@@ -2,6 +2,7 @@ import React, {useCallback, useContext} from 'react'
 import GlobalContext from '../main/GlobalContext.jsx'
 import {apiFetch, getFormData} from '../lib.js'
 import AbilityTemplates from '../components/gamemaster/AbilityTemplates.jsx'
+import ItemTemplates from '../components/gamemaster/ItemTemplates.jsx'
 import CollapsibleComponent from '../components/general/CollapsibleComponent.jsx'
 
 const GameMaster = () => {
@@ -39,9 +40,7 @@ const GameMaster = () => {
                                   deleteAbilityTemplate={deleteAbilityTemplate}/>
             </CollapsibleComponent>
             <CollapsibleComponent label="Items">
-                <h2>Item Templates</h2>
-                <h3>Current Item Templates</h3>
-                <h3>Create New Item Template</h3>
+                <ItemTemplates handleNewItemTemplate={handleNewItemTemplate} deleteItemTemplate={deleteItemTemplate}/>
             </CollapsibleComponent>
             <CollapsibleComponent label={'NPCs'}>
                 <h2>NPC Templates</h2>
