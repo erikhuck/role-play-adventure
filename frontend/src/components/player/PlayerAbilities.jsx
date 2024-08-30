@@ -1,8 +1,8 @@
 import {useContext, useState, useCallback} from 'react'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import Popup from '../general/Popup.jsx'
-import {getPlayer, apiFetch} from '../../lib.js'
-import {AbilityCheckTargetType} from '../../../../shared.js'
+import {getPlayer, apiFetch, sortByName} from '../../lib.js'
+import {AbilityCheckTargetType, MaxXp, MaxLevel} from '../../../../shared.js'
 
 const PlayerAbilities = () => {
     const {globalState} = useContext(GlobalContext)
@@ -18,15 +18,30 @@ const PlayerAbilities = () => {
             <h2>Player Abilities</h2>
             {player.abilities.length > 0 ? (
                 <>
-                    <ul>
-                        {player.abilities.map(ability => (
-                            <li key={ability.name}>
-                                <p>
-                                    <button onClick={() => openAbilityCheckPopup(ability)}>{ability.name}</button>
-                                    Level: {ability.level} XP: {ability.xp} Temp diff: {ability.tmpDiff}</p>
-                            </li>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Level</th>
+                            <th>XP</th>
+                            <th>Temporary Difference</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {sortByName(player.abilities).map(ability => (
+                            <tr key={ability.name}>
+                                <td>
+                                    <button onClick={() => openAbilityCheckPopup(ability)}>
+                                        {ability.name}
+                                    </button>
+                                </td>
+                                <td>{ability.level} / {MaxLevel}</td>
+                                <td>{ability.xp} / {MaxXp}</td>
+                                <td>{ability.tmpDiff}</td>
+                            </tr>
                         ))}
-                    </ul>
+                        </tbody>
+                    </table>
                     <Popup isVisible={isPopupVisible} setIsVisible={setIsPopupVisible}>
                         <AbilityCheckPopup ability={ability}/>
                     </Popup>

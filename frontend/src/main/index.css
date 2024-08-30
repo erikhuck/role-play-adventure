@@ -71,3 +71,24 @@ button:focus-visible {
         background-color: #f9f9f9;
     }
 }
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #333;
+}
+
+.table-w-deletes th.no-style, /* First header cell */
+.table-w-deletes td:first-child { /* All cells in the first column */
+    background-color: transparent; /* No background color */
+    border: none; /* No borders */
+    padding: 0; /* Optionally remove padding */
+}

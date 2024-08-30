@@ -34,3 +34,7 @@ export const getFormData = (event) => {
 }
 
 export const getPlayer = globalState => globalState.playerName && globalState.players.length > 0 ? globalState.players.find(obj => obj.name === globalState.playerName) : undefined
+
+export const sortByName = (array) => {
+    return array.sort((o1, o2) => o1.name.localeCompare(o2.name))
+}
