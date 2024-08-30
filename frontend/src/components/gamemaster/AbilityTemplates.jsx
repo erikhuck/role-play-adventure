@@ -1,6 +1,7 @@
 import {useContext} from 'react'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import ConditionSliders from './ConditionSliders.jsx'
+import {sortByName} from '../../lib.js'
 
 const AbilityTemplates = ({
                               handleNewAbilityTemplate,
@@ -11,29 +12,41 @@ const AbilityTemplates = ({
         <>
             <h2>Ability Templates</h2>
             <h3>Current Ability Templates</h3>
-            <ul>
+            <table className="table-w-deletes">
+                <thead>
+                <tr>
+                    <th className="no-style"></th>
+                    <th>Name</th>
+                    <th>Effected Conditions</th>
+                </tr>
+                </thead>
+                <tbody>
                 {
-                    globalState.abilityTemplates.map(({
-                                                          name,
-                                                          effectedConditions
-                                                      }) => (
-                        <li key={name}>
-                            <p>{name}</p>
-                            Effected Conditions:
-                            <ul>
+                    sortByName(globalState.abilityTemplates).map(({
+                                                                      name,
+                                                                      effectedConditions
+                                                                  }) => (
+                        <tr key={name}>
+                            <td>
+                                <button onClick={async () => await deleteAbilityTemplate(name)}>DELETE</button>
+                            </td>
+                            <td>
+                                <p>{name}</p>
+                            </td>
+                            <td>
                                 {
-                                    Object.keys(effectedConditions).map(condition => (
-                                        <li key={condition}>
-                                            <p>{condition}: {effectedConditions[condition]}</p>
-                                        </li>
+                                    Object.entries(effectedConditions).map(([condition, value]) => (
+                                        <span key={condition}>
+                                    <strong>{condition}:</strong> {value};&nbsp;
+                                </span>
                                     ))
                                 }
-                            </ul>
-                            <button key={name} onClick={async () => await deleteAbilityTemplate(name)}>DELETE</button>
-                        </li>
+                            </td>
+                        </tr>
                     ))
                 }
-            </ul>
+                </tbody>
+            </table>
             <h3>Create New Ability Template</h3>
             <form onSubmit={handleNewAbilityTemplate}>
                 <label htmlFor="name">Ability name:</label>

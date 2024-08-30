@@ -14,17 +14,22 @@ const PlayerConditions = () => {
     return (
         <>
             <h2>Player Conditions</h2>
-            <ul>
-                {conditionData.map(({
-                                        name,
-                                        value,
-                                        max
-                                    }) => (
-                    <li key={name}>
-                        {name}: {value} / {max}
-                    </li>
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Current Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                {conditionData.map(({ name, value, max }) => (
+                    <tr key={name}>
+                        <td>{name}</td>
+                        <td>{value} / {max}</td>
+                    </tr>
                 ))}
-            </ul>
+                </tbody>
+            </table>
         </>
     )
 }
