@@ -16,7 +16,10 @@ const App = () => {
         playerName: undefined,
         players: undefined,
         turns: undefined,
-        currentTurn: undefined
+        currentTurn: undefined,
+        abilityTemplates: undefined,
+        itemTemplates: undefined,
+        npcTemplates: undefined
     })
     const updateGlobalState = useCallback((partialState) => {
         setGlobalState((prevState) => ({

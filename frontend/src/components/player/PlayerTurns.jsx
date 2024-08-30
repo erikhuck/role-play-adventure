@@ -1,14 +1,15 @@
 import React, {useCallback, useContext, useEffect} from 'react'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import {apiFetch, getTurnName, isPlayerTurn} from '../../lib.js'
+import {CharacterType} from '../../../../shared.js'
 
 const PlayerTurns = () => {
     const {globalState} = useContext(GlobalContext)
     useEffect(() => {
         (async () => {
             await apiFetch('turns/add', 'POST', {
-                turnType: 'player',
-                'name': globalState.playerName
+                characterType: CharacterType.Player,
+                name: globalState.playerName
             })
         })()
     }, [globalState.playerName])

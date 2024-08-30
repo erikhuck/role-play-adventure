@@ -1,4 +1,6 @@
 import io from './websocket.js'
+import {CharacterType, Condition} from '../../../shared.js'
+import Database from './database.js'
 
 class TurnManager {
     static #currentTurn = 0
@@ -31,9 +33,28 @@ class TurnManager {
         return turn
     }
 
-    static nextTurn() {
+    static async nextTurn() {
+        const {
+            name,
+            characterType
+        } = this.#turns[this.#currentTurn]
         this.#currentTurn = (this.#currentTurn + 1) % this.#turns.length
-        io.emit('update-global-state', {currentTurn: this.#currentTurn})
+        if (characterType === CharacterType.Player) {
+            const player = await Database.getPlayer(name)
+            const players = await Database.updatePlayerConditions(player, {
+                [Condition.Fatigue]: -1,
+                [Condition.Happiness]: -1,
+                [Condition.Hunger]: -1,
+                [Condition.Thirst]: -1,
+                [Condition.Stamina]: 1
+            })
+            io.emit('update-global-state', {
+                currentTurn: this.#currentTurn,
+                players
+            })
+        } else {
+            io.emit('update-global-state', {currentTurn: this.#currentTurn})
+        }
     }
 }
 

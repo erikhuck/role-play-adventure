@@ -2,6 +2,7 @@ export const apiFetch = async (path, method = 'GET', body = undefined) => {
     // A trailing slash / is intentionally excluded since the path needs to match the endpoint exactly.
     // If a trailing slash is needed e.g. in an index endpoint of a blueprint, it must be appended to the path argument
     const apiPath = `/api/${path}`
+    // eslint-disable-next-line no-undef
     const response = await fetch(apiPath, {
             method,
             headers: body ? {
@@ -11,7 +12,8 @@ export const apiFetch = async (path, method = 'GET', body = undefined) => {
         }
     )
     if (response.status === 200 || response.status === 201) {
-        return await response.json()
+        const responseBody = await response.json()
+        return responseBody
     } else {
         let message = await response.text()
         message = message ? message : 'Unknown error'
@@ -25,6 +27,7 @@ export const isPlayerTurn = globalState => getTurnName(globalState) === globalSt
 
 export const getFormData = (event) => {
     event.preventDefault()
+    // eslint-disable-next-line no-undef
     let formData = new FormData(event.target)
     event.target.reset()
     return Object.fromEntries(formData.entries())

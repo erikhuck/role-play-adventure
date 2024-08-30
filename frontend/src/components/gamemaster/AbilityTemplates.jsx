@@ -1,20 +1,22 @@
+import {useContext} from 'react'
+import GlobalContext from '../../main/GlobalContext.jsx'
 import ConditionSliders from './ConditionSliders.jsx'
 
 const AbilityTemplates = ({
-                              abilityTemplates,
                               handleNewAbilityTemplate,
                               deleteAbilityTemplate
                           }) => {
+    const {globalState} = useContext(GlobalContext)
     return (
         <>
             <h2>Ability Templates</h2>
             <h3>Current Ability Templates</h3>
             <ul>
                 {
-                    abilityTemplates.map(({
-                                              name,
-                                              effectedConditions
-                                          }) => (
+                    globalState.abilityTemplates.map(({
+                                                          name,
+                                                          effectedConditions
+                                                      }) => (
                         <li key={name}>
                             <p>{name}</p>
                             Effected Conditions:
@@ -27,7 +29,7 @@ const AbilityTemplates = ({
                                     ))
                                 }
                             </ul>
-                            <button key={name} onClick={() => deleteAbilityTemplate(name)}>DELETE</button>
+                            <button key={name} onClick={async () => await deleteAbilityTemplate(name)}>DELETE</button>
                         </li>
                     ))
                 }

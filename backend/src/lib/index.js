@@ -15,6 +15,6 @@ export const getPlayer = async (req) => {
 
 export const deleteTemplate = async (req, res, deleteFunc) => {
     const {name} = req.body
-    const templates = await deleteFunc(name)
-    return res.status(200).json({templates})
+    await deleteFunc(name)
+    return res.status(201).json({message:`Template "${name}" deleted`})
 }
