@@ -1,7 +1,8 @@
 import {Router} from 'express'
 import TurnManager from '../lib/turns.js'
 import Database from '../lib/database.js'
-import {objectInArray, CharacterType} from '../../../shared.js'
+import {CharacterType} from '../../../shared.js'
+import _ from 'lodash'
 
 const turnsRoutes = Router()
 
@@ -22,7 +23,7 @@ turnsRoutes.post('/add', async (req, res) => {
         name: turn.name,
         characterType
     }
-    if (!objectInArray(turn, TurnManager.turns)) {
+    if (!_.some(TurnManager.turns, turn)) {
         TurnManager.addTurn(turn)
     }
     return res.status(201).json({message: `${name} added to turns`})
