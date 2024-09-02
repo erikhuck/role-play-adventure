@@ -1,7 +1,7 @@
 import {useContext} from 'react'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import ConditionSliders from './ConditionSliders.jsx'
-import {sortByName} from '../../lib.js'
+import TemplatesTable from './TemplatesTable.jsx'
 
 const AbilityTemplates = ({
                               handleNewAbilityTemplate,
@@ -12,41 +12,7 @@ const AbilityTemplates = ({
         <>
             <h2>Ability Templates</h2>
             <h3>Current Ability Templates</h3>
-            <table className="table-w-deletes">
-                <thead>
-                <tr>
-                    <th className="no-style"></th>
-                    <th>Name</th>
-                    <th>Effected Conditions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {
-                    sortByName(globalState.abilityTemplates).map(({
-                                                                      name,
-                                                                      effectedConditions
-                                                                  }) => (
-                        <tr key={name}>
-                            <td>
-                                <button onClick={async () => await deleteAbilityTemplate(name)}>DELETE</button>
-                            </td>
-                            <td>
-                                <p>{name}</p>
-                            </td>
-                            <td>
-                                {
-                                    Object.entries(effectedConditions).map(([condition, value]) => (
-                                        <span key={condition}>
-                                    <strong>{condition}:</strong> {value};&nbsp;
-                                </span>
-                                    ))
-                                }
-                            </td>
-                        </tr>
-                    ))
-                }
-                </tbody>
-            </table>
+            <TemplatesTable templates={globalState.abilityTemplates} deleteTemplate={deleteAbilityTemplate}/>
             <h3>Create New Ability Template</h3>
             <form onSubmit={handleNewAbilityTemplate}>
                 <label htmlFor="name">Ability name:</label>
