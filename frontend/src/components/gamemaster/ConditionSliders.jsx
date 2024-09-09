@@ -25,8 +25,8 @@ const ConditionSliders = ({sliderCategory}) => {
                         type="range"
                         id={`${sliderCategory}Slider${condition}`}
                         name={`${sliderCategory}Slider${condition}`}
-                        min="0"
-                        max="10"
+                        min="-5"
+                        max="5"
                         value={sliderValues[condition]}
                         onChange={event => handleSliderChange(condition, event)}
                     />

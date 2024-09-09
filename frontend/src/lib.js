@@ -1,3 +1,5 @@
+import basePluralize from 'pluralize'
+
 export const apiFetch = async (path, method = 'GET', body = undefined) => {
     // A trailing slash / is intentionally excluded since the path needs to match the endpoint exactly.
     // If a trailing slash is needed e.g. in an index endpoint of a blueprint, it must be appended to the path argument
@@ -35,6 +37,8 @@ export const getFormData = (event) => {
 
 export const getPlayer = globalState => globalState.playerName && globalState.players.length > 0 ? globalState.players.find(obj => obj.name === globalState.playerName) : undefined
 
-export const sortByName = (array) => {
+export const sortByName = array => {
     return array.sort((o1, o2) => o1.name.localeCompare(o2.name))
 }
+
+export const pluralize = string => string === 'NPC' ? 'NPCs' : basePluralize(string)

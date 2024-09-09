@@ -63,7 +63,7 @@ abilitiesRoutes.post('/template', async (req, res) => {
             let condition = key.replace('abilitySlider', '')
             condition = Condition[condition]
             const value = parseInt(req.body[key], 10)
-            if (value > 0) acc[condition] = -value
+            if (value !== 0) acc[condition] = value
             return acc
         }, {})
     try {
