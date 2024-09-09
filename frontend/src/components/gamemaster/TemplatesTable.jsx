@@ -7,26 +7,30 @@ const TemplatesTable = ({
                         }) => {
     const templateKeys = templates && templates.length > 0 ? Object.keys(templates[0]) : undefined
     return (
-        templateKeys ? (
-            <table className="table-w-deletes">
-                <thead>
-                <tr>
-                    <th className="no-style"></th>
-                    {templateKeys.map(key => <th key={key}>{_.startCase(key)}</th>)}
-                </tr>
-                </thead>
-                <tbody>
-                {
-                    sortByName(templates).map(template => (
-                        <TableRow key={template.name} template={template} templateKeys={templateKeys}
-                                  deleteTemplate={deleteTemplate}/>)
-                    )
-                }
-                </tbody>
-            </table>
-        ) : (
-            <p>No templates yet</p>
-        )
+        <>
+            {
+                templateKeys ? (
+                    <table className="table-w-deletes">
+                        <thead>
+                        <tr>
+                            <th className="no-style"></th>
+                            {templateKeys.map(key => <th key={key}>{_.startCase(key)}</th>)}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            sortByName(templates).map(template => (
+                                <TableRow key={template.name} template={template} templateKeys={templateKeys}
+                                          deleteTemplate={deleteTemplate}/>)
+                            )
+                        }
+                        </tbody>
+                    </table>
+                ) : (
+                    <p>No templates yet</p>
+                )
+            }
+        </>
     )
 }
 
