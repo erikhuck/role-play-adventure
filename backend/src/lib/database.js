@@ -1,6 +1,6 @@
 import {PrismaClient} from '@prisma/client'
 import io from './websocket.js'
-import {MaxXp, MaxLevel, Condition} from '../../../shared.js'
+import {MaxXp, MaxLevel, Condition, mapNames} from '../../../shared.js'
 
 const prisma = new PrismaClient()
 
@@ -39,7 +39,7 @@ class Database {
 
     static async getPlayerNames() {
         const players = await prisma.player.findMany({select: {name: true}})
-        const playerNames = players.map(player => player.name)
+        const playerNames = mapNames(players)
         return playerNames
     }
 
@@ -65,7 +65,7 @@ class Database {
         const abilityTemplates = await Database.getAbilityTemplates()
         let players = await Database.getPlayers()
         for (const player of players) {
-            const abilityNames = player.abilities.map(ability => ability.name)
+            const abilityNames = mapNames(player.abilities)
             if (!abilityNames.includes(template.name)) {
                 await prisma.player.update({
                     where: {

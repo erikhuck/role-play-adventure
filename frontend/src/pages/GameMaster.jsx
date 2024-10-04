@@ -3,6 +3,9 @@ import GlobalContext from '../main/GlobalContext.jsx'
 import {apiFetch, getFormData} from '../lib.js'
 import TemplateComponent from '../components/gamemaster/TemplateComponent.jsx'
 import ConditionSliders from '../components/gamemaster/ConditionSliders.jsx'
+import AbilitySliders from '../components/gamemaster/AbilitySliders.jsx'
+import NumberInput from '../components/gamemaster/NumberInput.jsx'
+import {MaxItemWeight, MaxItemPrice, MaxItemMaxCharges} from '../../../shared.js'
 
 const GameMaster = () => {
     const {globalState} = useContext(GlobalContext)
@@ -36,15 +39,21 @@ const GameMaster = () => {
             <h1>Game Master</h1>
             <TemplateComponent templates={globalState.abilityTemplates} deleteTemplate={deleteAbilityTemplate}
                                handleNewTemplate={handleNewAbilityTemplate} templateType="Ability">
-                <p>Effected conditions:</p>
-                <ConditionSliders sliderCategory={'ability'}/>
+                <ConditionSliders category={'ability'}/>
             </TemplateComponent>
             <hr/>
-            <TemplateComponent templates={globalState.itemTemplates} deleteTemplate={deleteItemTemplate} handleNewTemplate={handleNewItemTemplate} templateType="Item">
-                <p>TODO insert new item template form</p>
+            <TemplateComponent templates={globalState.itemTemplates} deleteTemplate={deleteItemTemplate}
+                               handleNewTemplate={handleNewItemTemplate} templateType="Item">
+                <NumberInput maxValue={MaxItemWeight} name={'Weight'}/>
+                <NumberInput maxValue={MaxItemPrice} name={'Price'}/>
+                <NumberInput maxValue={MaxItemMaxCharges} name={'Max Charges'}/>
+                // TODO Include a dropdown where an associated ability can be selected.
+                <AbilitySliders category="item"/>
+                <ConditionSliders category="item"/>
             </TemplateComponent>
             <hr/>
-            <TemplateComponent templates={globalState.npcTemplates} deleteTemplate={deleteNpcTemplate} handleNewTemplate={handleNewNpcTemplate} templateType="NPC">
+            <TemplateComponent templates={globalState.npcTemplates} deleteTemplate={deleteNpcTemplate}
+                               handleNewTemplate={handleNewNpcTemplate} templateType="NPC">
                 <p>TODO insert new NPC template form</p>
             </TemplateComponent>
         </>
