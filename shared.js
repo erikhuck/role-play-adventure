@@ -10,6 +10,12 @@ export const Condition = {
 export const MaxXp = 10
 export const MaxLevel = 10
 
+export const MaxItemWeight = 100
+
+export const MaxItemPrice = 10000
+
+export const MaxItemMaxCharges = 100
+
 export const CharacterType = {
     Player: 'player',
     Npc: 'npc'
@@ -19,3 +25,5 @@ export const AbilityCheckTargetType = {
     DifficultyLevel: 'DifficultyLevel',
     Character: 'Character'
 }
+
+export const mapNames = models => models.map(model => model.name)

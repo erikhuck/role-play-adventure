@@ -1,12 +1,13 @@
-import React, {useContext, useCallback} from 'react'
+import {useContext, useCallback} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {apiFetch, getFormData} from "../lib.js"
 import GlobalContext from '../main/GlobalContext.jsx'
+import {mapNames} from '../../../shared.js'
 
 const Login = ({updateGlobalState}) => {
     const {globalState} = useContext(GlobalContext)
     const navigate = useNavigate()
-    const playerNames = globalState.players.map(player => player.name)
+    const playerNames = mapNames(globalState.players)
     const handleLogin = useCallback(async (playerName) => {
         const responseBody = await apiFetch('auth/login', 'POST', {playerName})
         updateGlobalState({playerName: responseBody.playerName})

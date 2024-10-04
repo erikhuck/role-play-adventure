@@ -8,8 +8,9 @@ datasource db {
 }
 
 model AbilityTemplate {
-  name               String @id
-  effectedConditions Json?
+  name                String @id
+  effectedConditions  Json?
+  items               ItemTemplate[]
 }
 
 model NpcAbilityTemplate {
@@ -24,9 +25,11 @@ model ItemTemplate {
   name                  String                  @id
   weight                Int
   price                 Int
+  maxCharges            Int                     @default(5)
+  abilityName           String?
+  associatedAbility     AbilityTemplate?        @relation(fields: [abilityName], references: [name])
   effectedAbilities     Json?
   effectedConditions    Json?
-  maxCharges            Int                     @default(5)
   npcContainerTemplates NpcContainerTemplate[]  @relation("NpcItemTemplates")
 }
 
