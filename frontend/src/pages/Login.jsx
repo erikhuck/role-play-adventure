@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom'
 import {apiFetch, getFormData} from "../lib.js"
 import GlobalContext from '../main/GlobalContext.jsx'
 import {mapNames} from '../../../shared.js'
+import TextInput from '../components/general/TextInput.jsx'
 
 const Login = ({updateGlobalState}) => {
     const {globalState} = useContext(GlobalContext)
@@ -32,8 +33,7 @@ const Login = ({updateGlobalState}) => {
             )}
             <h2>Create New Player</h2>
             <form onSubmit={handleNewPlayer}>
-                <label htmlFor="newPlayerName">New player name:</label>
-                <input type="text" id="newPlayerName" name="newPlayerName" required/>
+                <TextInput label="New Player Name"/>
                 <button type="submit">Create Player</button>
             </form>
         </>

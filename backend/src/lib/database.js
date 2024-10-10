@@ -86,17 +86,17 @@ class Database {
         })
     }
 
-    static async addItemTemplate(templateData) {
+    static async addItemTemplate(template) {
         // TODO this can be re-used by addContainerTemplate and addAbilityTemplate in a helper function. Remember to so io.emit('update-global-state', ...)
-        await prisma.itemTemplate.create({
-            data: templateData,
-        })
+        await prisma.itemTemplate.create({data: template})
+        const itemTemplates = await prisma.itemTemplate.findMany()
+        io.emit('update-global-state', {itemTemplates})
     }
 
-    static async addContainerTemplate(templateData) {
+    static async addContainerTemplate(template) {
         // TODO test
         await prisma.containerTemplate.create({
-            data: templateData,
+            data: template,
         })
     }
 

@@ -27,3 +27,5 @@ export const AbilityCheckTargetType = {
 }
 
 export const mapNames = models => models.map(model => model.name)
+
+export const optionalNumber = numStr => numStr ? Number(numStr) : undefined

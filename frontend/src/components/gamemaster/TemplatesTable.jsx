@@ -50,7 +50,7 @@ const TableRow = ({
                         return (
                             <td key={key}>
                                 {
-                                    typeof value === 'object' ? (
+                                    value && typeof value === 'object' ? (
                                         Object.entries(value).map(([key, value]) => (
                                                 <span key={key}>
                                                     <strong>{_.startCase(key)}</strong>: {value};&nbsp;

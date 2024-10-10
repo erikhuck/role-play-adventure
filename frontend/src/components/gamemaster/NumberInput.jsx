@@ -1,6 +1,9 @@
+import camelCase from 'lodash/camelCase'
+
 const NumberInput = ({
                          maxValue,
-                         name
+                         name,
+                         required = true
                      }) => {
     const placeholder = `Enter a number (0-${maxValue})`
     return (
@@ -9,11 +12,12 @@ const NumberInput = ({
             <input
                 type="number"
                 id={name}
-                name={name}
+                name={`${camelCase(name)}`}
                 min="0"
                 max={maxValue}
                 placeholder={placeholder}
                 style={{width: `${placeholder.length + 1}ch`}}
+                required={required}
             />
         </div>
     )
