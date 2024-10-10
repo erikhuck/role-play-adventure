@@ -5,7 +5,9 @@ import TemplateComponent from '../components/gamemaster/TemplateComponent.jsx'
 import ConditionSliders from '../components/gamemaster/ConditionSliders.jsx'
 import AbilitySliders from '../components/gamemaster/AbilitySliders.jsx'
 import NumberInput from '../components/gamemaster/NumberInput.jsx'
-import {MaxItemWeight, MaxItemPrice, MaxItemMaxCharges} from '../../../shared.js'
+import Dropdown from '../components/gamemaster/Dropdown.jsx'
+import {MaxItemWeight, MaxItemPrice, MaxItemMaxCharges, mapNames} from '../../../shared.js'
+import TextInput from '../components/general/TextInput.jsx'
 
 const GameMaster = () => {
     const {globalState} = useContext(GlobalContext)
@@ -45,11 +47,13 @@ const GameMaster = () => {
             <TemplateComponent templates={globalState.itemTemplates} deleteTemplate={deleteItemTemplate}
                                handleNewTemplate={handleNewItemTemplate} templateType="Item">
                 <NumberInput maxValue={MaxItemWeight} name={'Weight'}/>
-                <NumberInput maxValue={MaxItemPrice} name={'Price'}/>
-                <NumberInput maxValue={MaxItemMaxCharges} name={'Max Charges'}/>
-                // TODO Include a dropdown where an associated ability can be selected.
+                <NumberInput maxValue={MaxItemPrice} name={'Price'} required={false}/>
+                <NumberInput maxValue={MaxItemMaxCharges} name={'Max Charges'} required={false}/>
+                <Dropdown label={'Associated Ability'} options={mapNames(globalState.abilityTemplates)}
+                          required={false}/>
                 <AbilitySliders category="item"/>
                 <ConditionSliders category="item"/>
+                <TextInput label="Description" required={false}/>
             </TemplateComponent>
             <hr/>
             <TemplateComponent templates={globalState.npcTemplates} deleteTemplate={deleteNpcTemplate}

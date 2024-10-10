@@ -24,12 +24,13 @@ model NpcAbilityTemplate {
 model ItemTemplate {
   name                  String                  @id
   weight                Int
-  price                 Int
+  price                 Int                     @default(0)
   maxCharges            Int                     @default(5)
   abilityName           String?
   associatedAbility     AbilityTemplate?        @relation(fields: [abilityName], references: [name])
   effectedAbilities     Json?
   effectedConditions    Json?
+  description           String?
   npcContainerTemplates NpcContainerTemplate[]  @relation("NpcItemTemplates")
 }
 

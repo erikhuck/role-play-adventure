@@ -1,11 +1,17 @@
-const TemplateForm = ({children, handleNewTemplate}) => {
+import TextInput from '../general/TextInput.jsx'
+
+const TemplateForm = ({
+                          children,
+                          handleNewTemplate
+                      }) => {
     return (
         <>
             <form onSubmit={handleNewTemplate}>
-                <label htmlFor="name">Name: </label>
-                <input type="text" id="name" name="name" required/>
+                <TextInput label="Name"/>
                 {children}
-                <button type="submit">Create</button>
+                <div>
+                    <button type="submit">Create</button>
+                </div>
             </form>
         </>
     )
