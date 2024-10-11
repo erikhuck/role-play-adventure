@@ -47,14 +47,15 @@ inventoryRoutes.delete('/item/template', async (req, res) => {
     return await deleteTemplate(req, res, Database.deleteItemTemplate)
 })
 
-inventoryRoutes.post('/container/template', (req, res) => {
-    // TODO
-    res.send('Add container template endpoint')
+inventoryRoutes.post('/container/template', async (req, res) => {
+    const {name, weightCapacity} = req.body
+    const template = {name, weightCapacity: Number(weightCapacity)}
+    await Database.addContainerTemplate(template)
+    res.status(201).json({message: `Container template of name ${name} added`})
 })
 
-inventoryRoutes.delete('/container/template', (req, res) => {
-    // TODO
-    res.send('Delete container template endpoint')
+inventoryRoutes.delete('/container/template', async (req, res) => {
+    return await deleteTemplate(req, res, Database.deleteContainerTemplate)
 })
 
 export default inventoryRoutes

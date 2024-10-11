@@ -16,6 +16,8 @@ export const MaxItemPrice = 10000
 
 export const MaxItemMaxCharges = 100
 
+export const MaxContainerWeightCapacity = 1000
+
 export const CharacterType = {
     Player: 'player',
     Npc: 'npc'
