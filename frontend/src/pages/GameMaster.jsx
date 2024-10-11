@@ -6,7 +6,7 @@ import ConditionSliders from '../components/gamemaster/ConditionSliders.jsx'
 import AbilitySliders from '../components/gamemaster/AbilitySliders.jsx'
 import NumberInput from '../components/gamemaster/NumberInput.jsx'
 import Dropdown from '../components/gamemaster/Dropdown.jsx'
-import {MaxItemWeight, MaxItemPrice, MaxItemMaxCharges, mapNames} from '../../../shared.js'
+import {MaxItemWeight, MaxItemPrice, MaxItemMaxCharges, MaxContainerWeightCapacity, mapNames} from '../../../shared.js'
 import TextInput from '../components/general/TextInput.jsx'
 
 const GameMaster = () => {
@@ -29,6 +29,12 @@ const GameMaster = () => {
     }, [handleNewTemplate])
     const deleteItemTemplate = useCallback(async (name) => {
         await deleteTemplate(name, 'inventory/item/template')
+    }, [deleteTemplate])
+    const handleNewContainerTemplate = useCallback(async (event) => {
+        await handleNewTemplate(event, 'inventory/container/template')
+    }, [handleNewTemplate])
+    const deleteContainerTemplate = useCallback(async (name) => {
+        await deleteTemplate(name, 'inventory/container/template')
     }, [deleteTemplate])
     const handleNewNpcTemplate = useCallback(async (event) => {
         await handleNewTemplate(event, 'npcs/template')
@@ -54,6 +60,11 @@ const GameMaster = () => {
                 <AbilitySliders category="item"/>
                 <ConditionSliders category="item"/>
                 <TextInput label="Description" required={false}/>
+            </TemplateComponent>
+            <hr/>
+            <TemplateComponent templates={globalState.containerTemplates} deleteTemplate={deleteContainerTemplate}
+                               handleNewTemplate={handleNewContainerTemplate} templateType="Container">
+                <NumberInput maxValue={MaxContainerWeightCapacity} name="Weight Capacity"/>
             </TemplateComponent>
             <hr/>
             <TemplateComponent templates={globalState.npcTemplates} deleteTemplate={deleteNpcTemplate}

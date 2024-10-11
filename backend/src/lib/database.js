@@ -56,6 +56,10 @@ class Database {
         return await this.#getTemplates(prisma.itemTemplate)
     }
 
+    static async getContainerTemplates() {
+        return await this.#getTemplates(prisma.containerTemplate)
+    }
+
     static async getNpcTemplates() {
         return await this.#getTemplates(prisma.npcTemplate)
     }
@@ -86,18 +90,18 @@ class Database {
         })
     }
 
+    static async #addTemplate(template, model, type) {
+        await model.create({data: template})
+        const templates = await model.findMany()
+        io.emit('update-global-state', {[type + 'Templates']: templates})
+    }
+
     static async addItemTemplate(template) {
-        // TODO this can be re-used by addContainerTemplate and addAbilityTemplate in a helper function. Remember to so io.emit('update-global-state', ...)
-        await prisma.itemTemplate.create({data: template})
-        const itemTemplates = await prisma.itemTemplate.findMany()
-        io.emit('update-global-state', {itemTemplates})
+        await Database.#addTemplate(template, prisma.itemTemplate, 'item')
     }
 
     static async addContainerTemplate(template) {
-        // TODO test
-        await prisma.containerTemplate.create({
-            data: template,
-        })
+        await Database.#addTemplate(template, prisma.containerTemplate, 'container')
     }
 
     static async deleteTemplate(name, model, type) {

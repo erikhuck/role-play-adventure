@@ -17,6 +17,7 @@ router.get('/init', async (req, res) => {
     const players = await Database.getPlayers()
     const abilityTemplates = await Database.getAbilityTemplates()
     const itemTemplates = await Database.getItemTemplates()
+    const containerTemplates = await Database.getContainerTemplates()
     const npcTemplates = await Database.getNpcTemplates()
     const initialState = {
         playerName,
@@ -25,6 +26,7 @@ router.get('/init', async (req, res) => {
         currentTurn: TurnManager.currentTurn,
         abilityTemplates,
         itemTemplates,
+        containerTemplates,
         npcTemplates
     }
     return res.status(200).json(initialState)
