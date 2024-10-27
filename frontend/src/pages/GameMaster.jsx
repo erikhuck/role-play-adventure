@@ -6,11 +6,37 @@ import ConditionSliders from '../components/gamemaster/ConditionSliders.jsx'
 import AbilitySliders from '../components/gamemaster/AbilitySliders.jsx'
 import NumberInput from '../components/gamemaster/NumberInput.jsx'
 import Dropdown from '../components/gamemaster/Dropdown.jsx'
-import {MaxItemWeight, MaxItemPrice, MaxItemMaxCharges, MaxContainerWeightCapacity, mapNames} from '../../../shared.js'
+import CheckboxList from '../components/gamemaster/CheckboxList.jsx'
+import {
+    MaxItemWeight,
+    MaxItemPrice,
+    MaxItemMaxCharges,
+    MaxContainerWeightCapacity,
+    MaxNpcHealth,
+    MaxNpcStamina,
+    mapNames, MaxNpcCarryCapacity
+} from '../../../shared.js'
 import TextInput from '../components/general/TextInput.jsx'
 
 const GameMaster = () => {
     const {globalState} = useContext(GlobalContext)
+    const npcTemplates = globalState.npcTemplates.map(template => {
+        let {
+            abilityTemplates,
+            containerTemplates,
+            ...rest
+        } = template
+        abilityTemplates = abilityTemplates.reduce((acc, template) => {
+            const name = template.name
+            acc[name] = template.level
+            return acc
+        }, {})
+        containerTemplates = mapNames(containerTemplates)
+        return {
+            abilityTemplates,
+            containerTemplates, ...rest
+        }
+    })
     const handleNewTemplate = useCallback(async (event, path) => {
         const newTemplate = getFormData(event)
         await apiFetch(path, 'POST', newTemplate)
@@ -57,8 +83,8 @@ const GameMaster = () => {
                 <NumberInput maxValue={MaxItemMaxCharges} name={'Max Charges'} required={false}/>
                 <Dropdown label={'Associated Ability'} options={mapNames(globalState.abilityTemplates)}
                           required={false}/>
-                <AbilitySliders category="item"/>
-                <ConditionSliders category="item"/>
+                <AbilitySliders category="itemAbility"/>
+                <ConditionSliders category="itemCondition" min={-50} max={50}/>
                 <TextInput label="Description" required={false}/>
             </TemplateComponent>
             <hr/>
@@ -67,9 +93,13 @@ const GameMaster = () => {
                 <NumberInput maxValue={MaxContainerWeightCapacity} name="Weight Capacity"/>
             </TemplateComponent>
             <hr/>
-            <TemplateComponent templates={globalState.npcTemplates} deleteTemplate={deleteNpcTemplate}
+            <TemplateComponent templates={npcTemplates} deleteTemplate={deleteNpcTemplate}
                                handleNewTemplate={handleNewNpcTemplate} templateType="NPC">
-                <p>TODO insert new NPC template form</p>
+                <NumberInput maxValue={MaxNpcHealth} name="Max Health" required={false}/>
+                <NumberInput maxValue={MaxNpcStamina} name="Max Stamina" required={false}/>
+                <NumberInput maxValue={MaxNpcCarryCapacity} name="Carry Capacity" required={false}/>
+                <AbilitySliders category="npc" label="Abilities" min={-5} max={15}/>
+                <CheckboxList label="Containers" options={mapNames(globalState.containerTemplates)}/>
             </TemplateComponent>
         </>
     )

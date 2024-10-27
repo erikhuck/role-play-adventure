@@ -51,13 +51,22 @@ const TableRow = ({
                             <td key={key}>
                                 {
                                     value && typeof value === 'object' ? (
-                                        Object.entries(value).map(([key, value]) => (
-                                                <span key={key}>
-                                                    <strong>{_.startCase(key)}</strong>: {value};&nbsp;
+                                        Array.isArray(value) ? (
+                                            value.map(value => (
+                                                <span key={value}>
+                                                    {_.startCase(value)};&nbsp;
                                                 </span>
-                                            )
+                                            ))
+                                        ) : (
+                                            Object.entries(value).map(([key, val]) => (
+                                                <span key={key}>
+                                                    <strong>{_.startCase(key)}</strong>: {val};&nbsp;
+                                                </span>
+                                            ))
                                         )
-                                    ) : (<p>{value}</p>)
+                                    ) : (
+                                        <p>{value}</p>
+                                    )
                                 }
                             </td>
                         )

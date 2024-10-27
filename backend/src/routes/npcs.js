@@ -1,15 +1,49 @@
 import {Router} from 'express'
+import {deleteTemplate, processSliderValues} from '../lib/index.js'
+import Database from '../lib/database.js'
+import {optionalNumber} from '../../../shared.js'
 
 const npcsRoutes = Router()
 
-npcsRoutes.post('/template', (req, res) => {
-    // TODO
-    res.send('Add NPC template endpoint')
+npcsRoutes.post('/template', async (req, res) => {
+    const {
+        name,
+        maxHealth,
+        maxStamina,
+        carryCapacity,
+        ...rest
+    } = req.body
+    const containerTemplates = Object.keys(rest).filter(key => !key.includes('npcSlider'))
+    const abilityLevels = processSliderValues(rest, 'npc')
+    const abilityNames = Object.keys(abilityLevels)
+    let abilityTemplates = await Database.getAbilityTemplatesOfNames(abilityNames)
+    abilityTemplates = abilityTemplates.reduce((acc, abilityTemplate) => {
+        const {
+            name,
+            effectedConditions
+        } = abilityTemplate
+        abilityTemplate = {
+            level: abilityLevels[name],
+            name,
+            effectedConditions
+        }
+        acc.push(abilityTemplate)
+        return acc
+    }, [])
+    const template = {
+        name,
+        maxHealth: optionalNumber(maxHealth),
+        maxStamina: optionalNumber(maxStamina),
+        carryCapacity: optionalNumber(carryCapacity),
+        abilityTemplates,
+        containerTemplates
+    }
+    await Database.addNpcTemplate(template)
+    res.status(201).json({message: `Container template of name ${name} added`})
 })
 
-npcsRoutes.delete('/template', (req, res) => {
-    // TODO
-    res.send('Delete NPC template endpoint')
+npcsRoutes.delete('/template', async (req, res) => {
+    return await deleteTemplate(req, res, Database.deleteNpcTemplate)
 })
 
 export default npcsRoutes

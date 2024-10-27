@@ -18,6 +18,12 @@ export const MaxItemMaxCharges = 100
 
 export const MaxContainerWeightCapacity = 1000
 
+export const MaxNpcHealth = 500
+
+export const MaxNpcStamina = 500
+
+export const MaxNpcCarryCapacity = 500
+
 export const CharacterType = {
     Player: 'player',
     Npc: 'npc'

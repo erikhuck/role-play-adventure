@@ -6,6 +6,13 @@ const prisma = new PrismaClient()
 
 // noinspection JSUnresolvedReference
 class Database {
+    static #npcInclude = {
+        include: {
+            abilityTemplates: true,
+            containerTemplates: true
+        }
+    }
+
     static async #getCharacter(name, model) {
         const character = await model.findUnique({
             where: {name},
@@ -43,9 +50,19 @@ class Database {
         return playerNames
     }
 
-    static async #getTemplates(model) {
-        const templates = await model.findMany()
+    static async #getTemplates(model, include = undefined) {
+        const templates = await model.findMany(include)
         return templates
+    }
+
+    static async getAbilityTemplatesOfNames(names) {
+        return await prisma.abilityTemplate.findMany({
+            where: {
+                name: {
+                    in: names
+                }
+            }
+        })
     }
 
     static async getAbilityTemplates() {
@@ -61,7 +78,7 @@ class Database {
     }
 
     static async getNpcTemplates() {
-        return await this.#getTemplates(prisma.npcTemplate)
+        return await Database.#getTemplates(prisma.npcTemplate, Database.#npcInclude)
     }
 
     static async addAbilityTemplate(template) {
@@ -90,9 +107,9 @@ class Database {
         })
     }
 
-    static async #addTemplate(template, model, type) {
+    static async #addTemplate(template, model, type, include = undefined) {
         await model.create({data: template})
-        const templates = await model.findMany()
+        const templates = await Database.#getTemplates(model, include)
         io.emit('update-global-state', {[type + 'Templates']: templates})
     }
 
@@ -104,9 +121,31 @@ class Database {
         await Database.#addTemplate(template, prisma.containerTemplate, 'container')
     }
 
-    static async deleteTemplate(name, model, type) {
+    static async addNpcTemplate(template) {
+        const {
+            name,
+            maxHealth,
+            maxStamina,
+            carryCapacity
+        } = template
+        template = {
+            name,
+            maxHealth,
+            maxStamina,
+            carryCapacity,
+            abilityTemplates: {
+                create: template.abilityTemplates
+            },
+            containerTemplates: {
+                connect: template.containerTemplates.map(name => ({name}))
+            }
+        }
+        await Database.#addTemplate(template, prisma.npcTemplate, 'npc', Database.#npcInclude)
+    }
+
+    static async deleteTemplate(name, model, type, include = undefined) {
         await model.delete({where: {name}})
-        const templates = await Database.#getTemplates(model)
+        const templates = await Database.#getTemplates(model, include)
         const players = await Database.getPlayers()
         io.emit('update-global-state', {
             players,
@@ -130,7 +169,7 @@ class Database {
     }
 
     static async deleteNpcTemplate(name) {
-        await Database.deleteTemplate(name, prisma.npcTempalte, 'npc')
+        await Database.deleteTemplate(name, prisma.npcTemplate, 'npc', Database.#npcInclude)
     }
 
     static async addPlayer(name) {

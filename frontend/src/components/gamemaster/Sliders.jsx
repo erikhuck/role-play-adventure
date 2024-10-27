@@ -1,6 +1,11 @@
 import {useState} from 'react'
 
-const Sliders = ({category, keys: keys}) => {
+const Sliders = ({
+                     category,
+                     keys,
+                     min = -5,
+                     max = 5
+                 }) => {
     const [sliderValues, setSliderValues] = useState(
         keys.reduce((acc, key) => ({
             ...acc,
@@ -23,8 +28,8 @@ const Sliders = ({category, keys: keys}) => {
                         type="range"
                         id={`${category}Slider${key}`}
                         name={`${category}Slider${key}`}
-                        min="-5"
-                        max="5"
+                        min={`${min}`}
+                        max={`${max}`}
                         value={sliderValues[key]}
                         onChange={event => handleSliderChange(key, event)}
                     />

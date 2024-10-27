@@ -1,8 +1,7 @@
 import {Router} from 'express'
-import {Condition, optionalNumber} from '../../../shared.js'
-import _ from 'lodash'
+import {optionalNumber} from '../../../shared.js'
 import Database from '../lib/database.js'
-import {deleteTemplate} from '../lib/index.js'
+import {deleteTemplate, processSliderValues} from '../lib/index.js'
 
 const inventoryRoutes = Router()
 
@@ -16,19 +15,8 @@ inventoryRoutes.post('/item/template', async (req, res) => {
         description,
         ...rest
     } = req.body
-    const effectedAbilities = {}
-    const effectedConditions = {}
-    for (let key of Object.keys(rest)) {
-        const value = Number(rest[key])
-        key = key.replace('itemSlider', '')
-        if (value !== 0) {
-            if (_.includes(Object.keys(Condition), key)) {
-                effectedConditions[key] = value
-            } else {
-                effectedAbilities[key] = value
-            }
-        }
-    }
+    const effectedAbilities = processSliderValues(rest, 'itemAbility')
+    const effectedConditions = processSliderValues(rest, 'itemCondition')
     const template = {
         name,
         weight: Number(weight),
@@ -48,8 +36,14 @@ inventoryRoutes.delete('/item/template', async (req, res) => {
 })
 
 inventoryRoutes.post('/container/template', async (req, res) => {
-    const {name, weightCapacity} = req.body
-    const template = {name, weightCapacity: Number(weightCapacity)}
+    const {
+        name,
+        weightCapacity
+    } = req.body
+    const template = {
+        name,
+        weightCapacity: Number(weightCapacity)
+    }
     await Database.addContainerTemplate(template)
     res.status(201).json({message: `Container template of name ${name} added`})
 })
