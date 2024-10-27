@@ -14,11 +14,12 @@ model AbilityTemplate {
 }
 
 model NpcAbilityTemplate {
-  id                  Int           @id @default(autoincrement())
   name                String
   effectedConditions  Json?
   level               Int
-  NpcTemplates        NpcTemplate[] @relation("NpcAbilityTemplates")
+  npcTemplateName     String
+  npcTemplate         NpcTemplate @relation("NpcAbilityTemplates", fields: [npcTemplateName], references: [name], onDelete: Cascade)
+  @@id([name, npcTemplateName])
 }
 
 model ItemTemplate {
@@ -31,7 +32,6 @@ model ItemTemplate {
   effectedAbilities     Json?
   effectedConditions    Json?
   description           String?
-  npcContainerTemplates NpcContainerTemplate[]  @relation("NpcItemTemplates")
 }
 
 model Item {
@@ -44,22 +44,13 @@ model Item {
   maxCharges         Int       @default(5)
   charges            Int       @default(5)
   containerId        Int
-  container          Container @relation(fields: [containerId], references: [id])
+  container          Container @relation(fields: [containerId], references: [id], onDelete: Cascade)
 }
 
 model ContainerTemplate {
-  name              String              @id
-  weightCapacity    Int
-}
-
-model NpcContainerTemplate {
-  id              Int             @id @default(autoincrement())
-  name            String
+  name            String        @id
   weightCapacity  Int
-  coins           Int
-  items           ItemTemplate[]  @relation("NpcItemTemplates")
-  npcName         String
-  npcTemplate     NpcTemplate     @relation("NpcContainerTemplates", fields: [npcName], references: [name])
+  npcTemplates    NpcTemplate[] @relation("ContainerTemplates")
 }
 
 model Container {
@@ -69,18 +60,18 @@ model Container {
   location        String  @default("On person")
   playerName      String?
   npcId           Int?
-  npc             Npc?    @relation(fields: [npcId], references: [id])
-  player          Player? @relation(fields: [playerName], references: [name])
+  npc             Npc?    @relation(fields: [npcId], references: [id], onDelete: Cascade)
+  player          Player? @relation(fields: [playerName], references: [name], onDelete: Cascade)
   items           Item[]
 }
 
 model NpcTemplate {
-  name                String                  @id
-  maxHealth           Int                     @default(100)
-  maxStamina          Int                     @default(100)
-  carryingCapacity    Int                     @default(100)
-  abilityTemplates    NpcAbilityTemplate[]    @relation("NpcAbilityTemplates")
-  containerTemplates  NpcContainerTemplate[]  @relation("NpcContainerTemplates")
+  name                String                @id
+  maxHealth           Int                   @default(100)
+  maxStamina          Int                   @default(100)
+  carryCapacity       Int                   @default(100)
+  abilityTemplates    NpcAbilityTemplate[]  @relation("NpcAbilityTemplates")
+  containerTemplates  ContainerTemplate[]   @relation("ContainerTemplates")
 }
 
 model Npc {
@@ -100,7 +91,7 @@ model NpcAbility {
   tmpDiff            Int  @default(0)
   effectedConditions Json
   npcId              Int
-  npc                Npc  @relation(fields: [npcId], references: [id])
+  npc                Npc  @relation(fields: [npcId], references: [id], onDelete: Cascade)
   @@id([npcId, name])
 }
 
@@ -118,6 +109,7 @@ model Player {
   maxHunger     Int     @default(100)
   maxThirst     Int     @default(100)
   maxHappiness  Int     @default(100)
+  carryCapacity Int     @default(100)
   containers    Container[]
   abilities     PlayerAbility[]
 }
@@ -129,6 +121,6 @@ model PlayerAbility {
   tmpDiff            Int    @default(0)
   effectedConditions Json
   playerName         String
-  player             Player @relation(fields: [playerName], references: [name])
+  player             Player @relation(fields: [playerName], references: [name], onDelete: Cascade)
   @@id([playerName, name])
 }

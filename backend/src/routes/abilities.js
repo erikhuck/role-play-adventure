@@ -1,7 +1,7 @@
 import {Router} from 'express'
-import {getPlayer, deleteTemplate} from '../lib/index.js'
+import {getPlayer, deleteTemplate, processSliderValues} from '../lib/index.js'
 import Database from '../lib/database.js'
-import {Condition, CharacterType, AbilityCheckTargetType} from '../../../shared.js'
+import {CharacterType, AbilityCheckTargetType} from '../../../shared.js'
 import {randomInt} from 'crypto'
 
 const abilitiesRoutes = Router()
@@ -55,17 +55,11 @@ abilitiesRoutes.post('/check', async (req, res) => {
 })
 
 abilitiesRoutes.post('/template', async (req, res) => {
-    const {name} = req.body
-    // noinspection JSCheckFunctionSignatures
-    const effectedConditions = Object.keys(req.body)
-        .filter(key => key.startsWith('abilitySlider'))
-        .reduce((acc, key) => {
-            let condition = key.replace('abilitySlider', '')
-            condition = Condition[condition]
-            const value = parseInt(req.body[key], 10)
-            if (value !== 0) acc[condition] = value
-            return acc
-        }, {})
+    const {
+        name,
+        ...rest
+    } = req.body
+    const effectedConditions = processSliderValues(rest, 'ability')
     try {
         const template = {
             name,

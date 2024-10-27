@@ -8,6 +8,7 @@ import npcsRoutes from './npcs.js'
 import {getPlayer} from '../lib/index.js'
 import Database from '../lib/database.js'
 import TurnManager from '../lib/turns.js'
+import {mapNames} from '../../../shared.js'
 
 const router = Router()
 
