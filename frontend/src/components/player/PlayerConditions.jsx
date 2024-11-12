@@ -1,4 +1,4 @@
-import React, {useContext} from 'react'
+import {useContext} from 'react'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import {Condition} from '../../../../shared.js'
 import {getPlayer} from '../../lib.js'

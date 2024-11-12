@@ -1,6 +1,6 @@
 import {PrismaClient} from '@prisma/client'
 import io from './websocket.js'
-import {MaxXp, MaxLevel, Condition, mapNames} from '../../../shared.js'
+import {Condition, mapNames, MaxLevel, MaxXp} from '../../../shared.js'
 
 const prisma = new PrismaClient()
 
@@ -13,46 +13,39 @@ class Database {
         }
     }
 
+    static #characterInclude = {
+        include: {
+            containers: {include: {items: {include: {template: true}}}},
+            abilities: true
+        }
+    }
+
     static async #getCharacter(name, model) {
-        const character = await model.findUnique({
+        return await model.findUnique({
             where: {name},
-            include: {
-                containers: true,
-                abilities: true
-            }
+            ...this.#characterInclude
         })
-        return character
     }
 
     static async getPlayer(name) {
-        const player = await Database.#getCharacter(name, prisma.player)
-        return player
+        return await Database.#getCharacter(name, prisma.player)
     }
 
     static async getNpc(name) {
-        const npc = await Database.#getCharacter(name, prisma.npc)
-        return npc
+        return await Database.#getCharacter(name, prisma.npc)
     }
 
     static async getPlayers() {
-        const players = await prisma.player.findMany({
-            include: {
-                containers: true,
-                abilities: true
-            }
-        })
-        return players
+        return await prisma.player.findMany(this.#characterInclude)
     }
 
     static async getPlayerNames() {
         const players = await prisma.player.findMany({select: {name: true}})
-        const playerNames = mapNames(players)
-        return playerNames
+        return mapNames(players)
     }
 
     static async #getTemplates(model, include = undefined) {
-        const templates = await model.findMany(include)
-        return templates
+        return await model.findMany(include)
     }
 
     static async getAbilityTemplatesOfNames(names) {
@@ -81,10 +74,62 @@ class Database {
         return await Database.#getTemplates(prisma.npcTemplate, Database.#npcInclude)
     }
 
+    static async #getTemplate(model, name) {
+        return await model.findUnique({where: {name}})
+    }
+
+    static async #updatePlayers(otherUpdates){
+        const players = await Database.getPlayers()
+        io.emit('update-global-state', {players, ...otherUpdates})
+    }
+
+    static async addItem(name, containerId) {
+        const template = await this.#getTemplate(prisma.itemTemplate, name)
+        await prisma.item.create({
+            data: {
+                template: {
+                    connect: {name}
+                },
+                charges: template.maxCharges,
+                container: {
+                    connect: {id: containerId}
+                }
+            }
+        })
+        await this.#updatePlayers({})
+    }
+
+    static async addContainer(name, playerName, location) {
+        const template = await Database.#getTemplate(prisma.containerTemplate, name)
+        await prisma.container.create({
+            data: {
+                ...template,
+                location,
+                player: {
+                    connect: {name: playerName}
+                }
+            }
+        })
+        await this.#updatePlayers({})
+    }
+
+    static async #delete(model, id) {
+        await model.delete({where: {id}})
+        await this.#updatePlayers({})
+    }
+
+    static async deleteItem(id) {
+        await this.#delete(prisma.item, id)
+    }
+
+    static async deleteContainer(id) {
+        await this.#delete(prisma.container, id)
+    }
+
     static async addAbilityTemplate(template) {
         await prisma.abilityTemplate.create({data: template})
         const abilityTemplates = await Database.getAbilityTemplates()
-        let players = await Database.getPlayers()
+        const players = await Database.getPlayers()
         for (const player of players) {
             const abilityNames = mapNames(player.abilities)
             if (!abilityNames.includes(template.name)) {
@@ -100,11 +145,7 @@ class Database {
                 })
             }
         }
-        players = await Database.getPlayers()
-        io.emit('update-global-state', {
-            players,
-            abilityTemplates
-        })
+        await this.#updatePlayers({abilityTemplates})
     }
 
     static async #addTemplate(template, model, type, include = undefined) {
@@ -146,11 +187,7 @@ class Database {
     static async deleteTemplate(name, model, type, include = undefined) {
         await model.delete({where: {name}})
         const templates = await Database.#getTemplates(model, include)
-        const players = await Database.getPlayers()
-        io.emit('update-global-state', {
-            players,
-            [type + 'Templates']: templates
-        })
+        await this.#updatePlayers({[type + 'Templates']: templates})
     }
 
     static async deleteAbilityTemplate(name) {
@@ -188,8 +225,7 @@ class Database {
                 }
             }
         })
-        const players = await Database.getPlayers()
-        io.emit('update-global-state', {players})
+        await this.#updatePlayers({})
     }
 
     static async addNpc(name) {
@@ -289,9 +325,11 @@ class Database {
     }
 
     static #updatePlayerCondition(player, condition, effect) {
+        let maxCondition = `max${condition}`
+        condition = condition.toLowerCase()
         player[condition] += effect
         player[condition] = player[condition] >= 0 ? player[condition] : 0
-        const maxCondition = player[`max${condition.charAt(0).toUpperCase() + condition.slice(1)}`]
+        maxCondition = player[maxCondition]
         player[condition] = player[condition] <= maxCondition ? player[condition] : maxCondition
     }
 
@@ -323,8 +361,7 @@ class Database {
                 happiness
             }
         })
-        const players = await Database.getPlayers()
-        return players
+        return await Database.getPlayers()
     }
 }
 

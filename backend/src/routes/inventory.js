@@ -35,6 +35,18 @@ inventoryRoutes.delete('/item/template', async (req, res) => {
     return await deleteTemplate(req, res, Database.deleteItemTemplate)
 })
 
+inventoryRoutes.post('/item', async (req, res) => {
+    const {name, containerId} = req.body
+    await Database.addItem(name, containerId)
+    res.status(201).json({message: `Item of name ${name} added to container of ID ${containerId}`})
+})
+
+inventoryRoutes.delete('/item', async (req, res) => {
+    const {id} = req.body
+    await Database.deleteItem(id)
+    res.status(201).json({message: `Item of ID ${id} deleted.`})
+})
+
 inventoryRoutes.post('/container/template', async (req, res) => {
     const {
         name,
@@ -50,6 +62,18 @@ inventoryRoutes.post('/container/template', async (req, res) => {
 
 inventoryRoutes.delete('/container/template', async (req, res) => {
     return await deleteTemplate(req, res, Database.deleteContainerTemplate)
+})
+
+inventoryRoutes.post('/container', async (req, res) => {
+    const {name, playerName, location} = req.body
+    await Database.addContainer(name, playerName, location)
+    res.status(201).json({message: `Container of name ${name} added to player ${playerName}.`})
+})
+
+inventoryRoutes.delete('/container', async (req, res) => {
+    const {id} = req.body
+    await Database.deleteContainer(id)
+    res.status(201).json({message: `Container of ID ${id} deleted.`})
 })
 
 export default inventoryRoutes

@@ -3,6 +3,7 @@ import GlobalContext from '../../main/GlobalContext.jsx'
 import Popup from '../general/Popup.jsx'
 import {getPlayer, apiFetch, sortByName} from '../../lib.js'
 import {AbilityCheckTargetType, MaxXp, MaxLevel} from '../../../../shared.js'
+import ObjectDisplay from '../general/ObjectDisplay.jsx'
 
 const PlayerAbilities = () => {
     const {globalState} = useContext(GlobalContext)
@@ -25,6 +26,7 @@ const PlayerAbilities = () => {
                             <th>Level</th>
                             <th>XP</th>
                             <th>Temporary Difference</th>
+                            <th>Effected Conditions</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -38,6 +40,7 @@ const PlayerAbilities = () => {
                                 <td>{ability.level} / {MaxLevel}</td>
                                 <td>{ability.xp} / {MaxXp}</td>
                                 <td>{ability.tmpDiff}</td>
+                                <td><ObjectDisplay object={ability.effectedConditions}/></td>
                             </tr>
                         ))}
                         </tbody>
