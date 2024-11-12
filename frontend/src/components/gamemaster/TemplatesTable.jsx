@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import ObjectDisplay from '../general/ObjectDisplay.jsx'
 import {sortByName} from '../../lib.js'
 
 const TemplatesTable = ({
@@ -58,11 +59,7 @@ const TableRow = ({
                                                 </span>
                                             ))
                                         ) : (
-                                            Object.entries(value).map(([key, val]) => (
-                                                <span key={key}>
-                                                    <strong>{_.startCase(key)}</strong>: {val};&nbsp;
-                                                </span>
-                                            ))
+                                            <ObjectDisplay object={value}/>
                                         )
                                     ) : (
                                         <p>{value}</p>

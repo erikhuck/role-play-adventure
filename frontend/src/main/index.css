@@ -90,5 +90,17 @@ th {
 .table-w-deletes td:first-child { /* All cells in the first column */
     background-color: transparent; /* No background color */
     border: none; /* No borders */
-    padding: 0; /* Optionally remove padding */
+    padding: 0; /* Removes padding */
 }
+
+.dropdown {
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Smooth transition to hover */
+}
+
+.dropdown:hover {
+    background-color: #343434;
+    color: white;
+}
+
