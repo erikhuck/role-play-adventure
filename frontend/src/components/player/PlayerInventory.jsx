@@ -4,6 +4,7 @@ import ObjectDisplay from '../general/ObjectDisplay.jsx'
 import SearchableDropdown from '../general/SearchableDropdown.jsx'
 import {apiFetch, getPlayer} from '../../lib.js'
 import {mapNames} from '../../../../shared.js'
+import DeleteButton from '../general/DeleteButton.jsx'
 
 const PlayerInventory = () => {
     const {globalState} = useContext(GlobalContext)
@@ -44,7 +45,7 @@ const PlayerInventory = () => {
                     player.containers.map(container => (
                         <tr key={container.id}>
                             <td>
-                                <button onClick={async () => await deleteContainer(container.id)}>DELETE</button>
+                                <DeleteButton deleteFunc={async () => await deleteContainer(container.id)}/>
                             </td>
                             <td>{container.name}</td>
                             <td>{container.location}</td>
@@ -67,7 +68,7 @@ const PlayerInventory = () => {
                                         container.items.map(item => (
                                             <tr key={item.id}>
                                                 <td>
-                                                    <button onClick={async () => await deleteItem(item.id)}>DELETE</button>
+                                                    <DeleteButton deleteFunc={async () => await deleteItem(item.id)}/>
                                                 </td>
                                                 {/*TODO similar to ability checks, replace with a button where the item name is the text and it opens up a menu to use the item.*/}
                                                 <td>{item.template.name}</td>

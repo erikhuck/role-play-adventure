@@ -18,18 +18,18 @@ const Player = ({updateGlobalState}) => {
     }, [globalState.playerName, navigate])
     const handleLogout = useCallback(async () => {
         await apiFetch('auth/logout', 'POST')
-        const playerIndex = globalState.turns.findIndex(turn => turn.name === globalState.playerName)
-        await apiFetch('turns/drop', 'DELETE', {index: playerIndex})
+        await apiFetch('turns/drop', 'DELETE', {name: globalState.playerName})
         updateGlobalState({playerName: undefined})
         navigate('/login')
-    }, [globalState.turns, globalState.playerName, updateGlobalState, navigate])
+    }, [globalState.playerName, updateGlobalState, navigate])
     return (
         <div>
             {globalState.playerName ? (
                 <>
                     <h1>{globalState.playerName}</h1>
                     <PlayerTurns updateGlobalState={updateGlobalState}/>
-                    <CollapsibleComponent label={'Conditions'}>
+                    <hr/>
+                    <CollapsibleComponent label="Conditions">
                         <PlayerConditions/>
                     </CollapsibleComponent>
                     <CollapsibleComponent label="Abilities">

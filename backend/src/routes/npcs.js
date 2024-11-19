@@ -5,6 +5,18 @@ import {optionalNumber} from '../../../shared.js'
 
 const npcsRoutes = Router()
 
+npcsRoutes.post('/', async (req, res) => {
+    const {name} = req.body
+    await Database.addNpc(name)
+    return res.status(201).json({message: `NPC of template name ${name} added.`})
+})
+
+npcsRoutes.delete('/', async (req, res) => {
+    const {id} = req.body
+    await Database.deleteNpc(id)
+    return res.status(201).json({message: `NPC of ID ${id} deleted.`})
+})
+
 npcsRoutes.post('/template', async (req, res) => {
     const {
         name,

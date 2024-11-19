@@ -57,6 +57,16 @@ button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
 
+button.delete {
+    background-color: #b22222; /* Firebrick red background */
+    color: #fff; /* White text */
+}
+
+button.delete:hover {
+    background-color: #ff4500; /* Bright orange-red on hover */
+    border-color: #ff6347; /* Tomato color border */
+}
+
 @media (prefers-color-scheme: light) {
     :root {
         color: #213547;

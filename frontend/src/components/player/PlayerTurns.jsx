@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useEffect} from 'react'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import {apiFetch, getTurnName, isPlayerTurn} from '../../lib.js'
 import {CharacterType} from '../../../../shared.js'
+import TurnList from '../general/TurnList.jsx'
 
 const PlayerTurns = () => {
     const {globalState} = useContext(GlobalContext)
@@ -20,25 +21,25 @@ const PlayerTurns = () => {
     return (
         <>
             <h2>Who's Turn Is It?</h2>
-            {turnName ? (
-                <ul>
-                    {globalState.turns.map((turn, index) => (
-                        <li key={index}>
-                            <p>{index === globalState.currentTurn ? <b>{turn.name}</b> : turn.name}</p>
-                        </li>
-                    ))}
-                    {isPlayerTurn(globalState) ? (
-                        <>
-                            <p>It's your turn!</p>
-                            <button onClick={handleNextTurn}>End Turn</button>
-                        </>
-                    ) : (
-                        <p>It's {turnName}'s turn</p>
-                    )}
-                </ul>
-            ) : (
-                <p>Adding player to turns...</p>
-            )}
+            {
+                turnName ? (
+                    <>
+                        <TurnList/>
+                        {
+                            isPlayerTurn(globalState) ? (
+                                <>
+                                    <p>It's your turn!</p>
+                                    <button onClick={handleNextTurn}>End Turn</button>
+                                </>
+                            ) : (
+                                <p>It's {turnName}'s turn</p>
+                            )
+                        }
+                    </>
+                ) : (
+                    <p>Adding player to turns...</p>
+                )
+            }
         </>
     )
 }

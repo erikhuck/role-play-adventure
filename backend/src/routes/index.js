@@ -19,6 +19,7 @@ router.get('/init', async (req, res) => {
     const itemTemplates = await Database.getItemTemplates()
     const containerTemplates = await Database.getContainerTemplates()
     const npcTemplates = await Database.getNpcTemplates()
+    const npcs = await Database.getNpcs()
     const initialState = {
         playerName,
         players,
@@ -27,7 +28,8 @@ router.get('/init', async (req, res) => {
         abilityTemplates,
         itemTemplates,
         containerTemplates,
-        npcTemplates
+        npcTemplates,
+        npcs
     }
     return res.status(200).json(initialState)
 })

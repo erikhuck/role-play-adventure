@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import ObjectDisplay from '../general/ObjectDisplay.jsx'
 import {sortByName} from '../../lib.js'
+import DeleteButton from '../general/DeleteButton.jsx'
 
 const TemplatesTable = ({
                             templates,
@@ -43,7 +44,7 @@ const TableRow = ({
     return (
         <tr>
             <td>
-                <button onClick={async () => await deleteTemplate(template.name)}>DELETE</button>
+                <DeleteButton deleteFunc={async () => await deleteTemplate(template.name)}/>
             </td>
             {
                 templateKeys.map(key => {
