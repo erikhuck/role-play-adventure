@@ -1,12 +1,13 @@
 import {PrismaClient} from '@prisma/client'
 import io from './websocket.js'
 import {Condition, mapNames, MaxLevel, MaxXp} from '../../../shared.js'
+import TurnManager from './turns.js'
 
 const prisma = new PrismaClient()
 
 // noinspection JSUnresolvedReference
 class Database {
-    static #npcInclude = {
+    static #npcTemplateInclude = {
         include: {
             abilityTemplates: true,
             containerTemplates: true
@@ -44,6 +45,10 @@ class Database {
         return mapNames(players)
     }
 
+    static async getNpcs() {
+        return await prisma.npc.findMany(this.#characterInclude)
+    }
+
     static async #getTemplates(model, include = undefined) {
         return await model.findMany(include)
     }
@@ -71,11 +76,11 @@ class Database {
     }
 
     static async getNpcTemplates() {
-        return await Database.#getTemplates(prisma.npcTemplate, Database.#npcInclude)
+        return await Database.#getTemplates(prisma.npcTemplate, Database.#npcTemplateInclude)
     }
 
-    static async #getTemplate(model, name) {
-        return await model.findUnique({where: {name}})
+    static async #getTemplate(model, name, include = undefined) {
+        return await model.findUnique({where: {name}, ...include})
     }
 
     static async #updatePlayers(otherUpdates){
@@ -181,7 +186,7 @@ class Database {
                 connect: template.containerTemplates.map(name => ({name}))
             }
         }
-        await Database.#addTemplate(template, prisma.npcTemplate, 'npc', Database.#npcInclude)
+        await Database.#addTemplate(template, prisma.npcTemplate, 'npc', Database.#npcTemplateInclude)
     }
 
     static async deleteTemplate(name, model, type, include = undefined) {
@@ -206,7 +211,7 @@ class Database {
     }
 
     static async deleteNpcTemplate(name) {
-        await Database.deleteTemplate(name, prisma.npcTemplate, 'npc', Database.#npcInclude)
+        await Database.deleteTemplate(name, prisma.npcTemplate, 'npc', Database.#npcTemplateInclude)
     }
 
     static async addPlayer(name) {
@@ -228,65 +233,50 @@ class Database {
         await this.#updatePlayers({})
     }
 
-    static async addNpc(name) {
-        // TODO test
-        const characterTemplate = await prisma.characterTemplate.findUnique({
-            where: {name},
-        })
-
-        if (!characterTemplate) throw new Error('Character template not found')
-
-        await prisma.nPC.create({
+    static async addNpc(templateName) {
+        let npcs = await prisma.npc.findMany({select: {name: true}})
+        const npcNames = mapNames(npcs)
+        const template = await this.#getTemplate(prisma.npcTemplate, templateName, this.#npcTemplateInclude)
+        let nameOccurrence = 1
+        for (const npcName of npcNames) {
+            if (npcName === templateName || (npcName.startsWith(`${templateName} (`) && npcName.endsWith(')'))) {
+                nameOccurrence += 1
+            }
+        }
+        let {abilityTemplates, containerTemplates, name, ...rest} = template
+        if (nameOccurrence > 1) {
+            name = `${name} (${nameOccurrence})`
+        }
+        await prisma.npc.create({
             data: {
+                ...rest,
                 name,
                 abilities: {
-                    create: characterTemplate.abilities.map(abilityTemplate => ({
-                        name: abilityTemplate.name,
-                        level: abilityTemplate.level,
-                        tmpDiff: 0,
-                        effectedConditions: abilityTemplate.effectedConditions,
-                    })),
+                    create: abilityTemplates.map(({name, effectedConditions, level}) => ({
+                        name,
+                        effectedConditions,
+                        level
+                    }))
                 },
-                inventory: {
-                    create: characterTemplate.inventory.map(containerTemplate => ({
-                        name: containerTemplate.name,
-                        weightCapacity: containerTemplate.weightCapacity,
-                        items: {
-                            create: containerTemplate.items.map(itemTemplate => ({
-                                name: itemTemplate.name,
-                                weight: itemTemplate.weight,
-                                price: itemTemplate.price,
-                                effectedAbilities: itemTemplate.effectedAbilities,
-                                effectedConditions: itemTemplate.effectedConditions,
-                                maxCharges: itemTemplate.maxCharges,
-                                charges: itemTemplate.charges,
-                            })),
-                        },
-                    })),
+                containers: {
+                    create: containerTemplates.map(({name, weightCapacity}) => ({
+                        name,
+                        weightCapacity
+                    }))
                 },
-                health: 100,
-                stamina: 100,
-            },
+                health: template.maxHealth,
+                stamina: template.maxHealth
+            }
         })
+        npcs = await this.getNpcs()
+        io.emit('update-global-state', {npcs})
     }
 
-    static async addNpcAbilityTemplate(name, npcName, abilityData) {
-        // TODO test
-        const npc = await prisma.npc.findUnique({
-            where: {name: npcName},
-        })
-
-        if (!npc) throw new Error('NPC not found')
-
-        await prisma.npcAbility.create({
-            data: {
-                name,
-                ...abilityData,
-                npcs: {
-                    connect: {name: npcName},
-                },
-            },
-        })
+    static async deleteNpc(id){
+        const npc = await prisma.npc.delete({where: {id}})
+        const npcs = await this.getNpcs()
+        io.emit('update-global-state', {npcs})
+        TurnManager.dropTurn(npc.name)
     }
 
     static async abilityCheck(success, player, ability) {

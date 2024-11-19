@@ -19,16 +19,19 @@ class TurnManager {
         io.emit('update-global-state', {turns: this.#turns})
     }
 
-    static dropTurn(index) {
+    static dropTurn(name) {
+        const index = TurnManager.turns.findIndex(turn => turn.name === name)
         let turn = null
-        if (this.#turns.length > index) {
-            turn = this.#turns[index]
-            this.#turns.splice(index, 1)
-            this.#currentTurn = 0
-            io.emit('update-global-state', {
-                currentTurn: this.#currentTurn,
-                turns: this.#turns
-            })
+        if (index !== -1) {
+            if (this.#turns.length > index) {
+                turn = this.#turns[index]
+                this.#turns.splice(index, 1)
+                this.#currentTurn = 0
+                io.emit('update-global-state', {
+                    currentTurn: this.#currentTurn,
+                    turns: this.#turns
+                })
+            }
         }
         return turn
     }

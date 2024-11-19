@@ -30,8 +30,8 @@ turnsRoutes.post('/add', async (req, res) => {
 })
 
 turnsRoutes.delete('/drop', (req, res) => {
-    const {index} = req.body
-    const turn = TurnManager.dropTurn(index)
+    const {name} = req.body
+    const turn = TurnManager.dropTurn(name)
     if (turn === null) {
         return res.status(400).send('Turn index out of range for current number of turns')
     } else {

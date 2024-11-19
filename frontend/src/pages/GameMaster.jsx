@@ -14,9 +14,14 @@ import {
     MaxContainerWeightCapacity,
     MaxNpcHealth,
     MaxNpcStamina,
-    mapNames, MaxNpcCarryCapacity
+    MaxNpcCarryCapacity,
+    CharacterType,
+    mapNames,
 } from '../../../shared.js'
 import TextInput from '../components/general/TextInput.jsx'
+import TurnList from '../components/general/TurnList.jsx'
+import NpcList from '../components/gamemaster/NpcList.jsx'
+import CollapsibleComponent from '../components/general/CollapsibleComponent.jsx'
 
 const GameMaster = () => {
     const {globalState} = useContext(GlobalContext)
@@ -68,9 +73,20 @@ const GameMaster = () => {
     const deleteNpcTemplate = useCallback(async (name) => {
         await deleteTemplate(name, 'npcs/template')
     }, [deleteTemplate])
+    const handleNextTurn = useCallback(async () => {
+        await apiFetch('turns/next', 'PUT')
+    }, [])
     return (
         <>
             <h1>Game Master</h1>
+            <h2>NPCs and Turns</h2>
+            <CollapsibleComponent label="NPC List">
+                <NpcList/>
+            </CollapsibleComponent>
+            <h3>Turns</h3>
+            <TurnList/>
+            <button onClick={handleNextTurn} disabled={globalState.turns[globalState.currentTurn].characterType === CharacterType.Player}>End NPC Turn</button>
+            <h2>Manage Templates</h2>
             <TemplateComponent templates={globalState.abilityTemplates} deleteTemplate={deleteAbilityTemplate}
                                handleNewTemplate={handleNewAbilityTemplate} templateType="Ability">
                 <ConditionSliders category={'ability'}/>
