@@ -73,9 +73,6 @@ const GameMaster = () => {
     const deleteNpcTemplate = useCallback(async (name) => {
         await deleteTemplate(name, 'npcs/template')
     }, [deleteTemplate])
-    const handleNextTurn = useCallback(async () => {
-        await apiFetch('turns/next', 'PUT')
-    }, [])
     return (
         <>
             <h1>Game Master</h1>
@@ -84,8 +81,7 @@ const GameMaster = () => {
                 <NpcList/>
             </CollapsibleComponent>
             <h3>Turns</h3>
-            <TurnList/>
-            <button onClick={handleNextTurn} disabled={globalState.turns[globalState.currentTurn].characterType === CharacterType.Player}>End NPC Turn</button>
+            <TurnList buttonDisabled={globalState.turns[globalState.currentTurn].characterType === CharacterType.Player}/>
             <h2>Manage Templates</h2>
             <TemplateComponent templates={globalState.abilityTemplates} deleteTemplate={deleteAbilityTemplate}
                                handleNewTemplate={handleNewAbilityTemplate} templateType="Ability">

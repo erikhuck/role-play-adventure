@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect} from 'react'
+import {useContext, useEffect} from 'react'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import {apiFetch, getTurnName, isPlayerTurn} from '../../lib.js'
 import {CharacterType} from '../../../../shared.js'
@@ -14,9 +14,6 @@ const PlayerTurns = () => {
             })
         })()
     }, [globalState.playerName])
-    const handleNextTurn = useCallback(async () => {
-        await apiFetch('turns/next', 'PUT')
-    }, [])
     const turnName = getTurnName(globalState)
     return (
         <>
@@ -24,17 +21,16 @@ const PlayerTurns = () => {
             {
                 turnName ? (
                     <>
-                        <TurnList/>
                         {
                             isPlayerTurn(globalState) ? (
                                 <>
                                     <p>It's your turn!</p>
-                                    <button onClick={handleNextTurn}>End Turn</button>
                                 </>
                             ) : (
                                 <p>It's {turnName}'s turn</p>
                             )
                         }
+                        <TurnList buttonDisabled={!isPlayerTurn(globalState)}/>
                     </>
                 ) : (
                     <p>Adding player to turns...</p>
