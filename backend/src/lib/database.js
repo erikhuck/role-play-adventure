@@ -1,6 +1,7 @@
 import {PrismaClient} from '@prisma/client'
 import io from './websocket.js'
 import {Condition, mapNames, MaxLevel, MaxXp} from '../../../shared.js'
+import _ from 'lodash'
 import TurnManager from './turns.js'
 
 const prisma = new PrismaClient()
@@ -104,15 +105,14 @@ class Database {
         await this.#updatePlayers({})
     }
 
-    static async addContainer(name, playerName, location) {
+    static async addContainer(name, characterName, characterType, location) {
         const template = await Database.#getTemplate(prisma.containerTemplate, name)
+        const connectClause = {[characterType]: {connect: {name: characterName}}}
         await prisma.container.create({
             data: {
                 ...template,
                 location,
-                player: {
-                    connect: {name: playerName}
-                }
+                ...connectClause
             }
         })
         await this.#updatePlayers({})
@@ -315,7 +315,7 @@ class Database {
     }
 
     static #updatePlayerCondition(player, condition, effect) {
-        let maxCondition = `max${condition}`
+        let maxCondition = `max${_.startCase(condition)}`
         condition = condition.toLowerCase()
         player[condition] += effect
         player[condition] = player[condition] >= 0 ? player[condition] : 0

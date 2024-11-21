@@ -47,7 +47,7 @@ const NpcList = () => {
                                     )
                                 }
                             </td>
-                            {/* TODO the name cell should actually be a button that if clicked, brings a popup that shows more info about the NPC. This can probably be mostly re-used from the player screen, i.e. a shared component called CharacterInfo.*/}
+                            {/* TODO the name cell should actually be a button that if clicked, brings a popup that shows more info about the NPC. This can probably be mostly re-used from the character screen, i.e. a shared component called CharacterInfo.*/}
                             <td>{npc.name}</td>
                         </tr>
                     ))

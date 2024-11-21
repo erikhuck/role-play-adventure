@@ -65,9 +65,9 @@ inventoryRoutes.delete('/container/template', async (req, res) => {
 })
 
 inventoryRoutes.post('/container', async (req, res) => {
-    const {name, playerName, location} = req.body
-    await Database.addContainer(name, playerName, location)
-    res.status(201).json({message: `Container of name ${name} added to player ${playerName}.`})
+    const {name, characterName, characterType, location} = req.body
+    await Database.addContainer(name, characterName, characterType, location)
+    res.status(201).json({message: `Container of name ${name} added to ${characterName}.`})
 })
 
 inventoryRoutes.delete('/container', async (req, res) => {

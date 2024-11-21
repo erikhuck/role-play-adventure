@@ -1,13 +1,12 @@
 import {useContext, useState, useCallback} from 'react'
+import _ from 'lodash'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import Popup from '../general/Popup.jsx'
-import {getPlayer, apiFetch, sortByName} from '../../lib.js'
+import {apiFetch, sortByName} from '../../lib.js'
 import {AbilityCheckTargetType, MaxXp, MaxLevel} from '../../../../shared.js'
 import ObjectDisplay from '../general/ObjectDisplay.jsx'
 
-const PlayerAbilities = () => {
-    const {globalState} = useContext(GlobalContext)
-    const player = getPlayer(globalState)
+const CharacterAbilities = ({characterType, abilities}) => {
     const [isPopupVisible, setIsPopupVisible] = useState(false)
     const [ability, setAbility] = useState(undefined)
     const openAbilityCheckPopup = useCallback((ability) => {
@@ -16,8 +15,8 @@ const PlayerAbilities = () => {
     }, [])
     return (
         <>
-            <h2>Player Abilities</h2>
-            {player.abilities.length > 0 ? (
+            <h2>{_.startCase(characterType)} Abilities</h2>
+            {abilities.length > 0 ? (
                 <>
                     <table>
                         <thead>
@@ -30,7 +29,7 @@ const PlayerAbilities = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {sortByName(player.abilities).map(ability => (
+                        {sortByName(abilities).map(ability => (
                             <tr key={ability.name}>
                                 <td>
                                     <button onClick={() => openAbilityCheckPopup(ability)}>
@@ -46,7 +45,7 @@ const PlayerAbilities = () => {
                         </tbody>
                     </table>
                     <Popup isVisible={isPopupVisible} setIsVisible={setIsPopupVisible}>
-                        <AbilityCheckPopup ability={ability}/>
+                        <AbilityCheckPopup characterType={characterType} ability={ability}/>
                     </Popup>
                 </>
             ) : (
@@ -75,7 +74,7 @@ const difficultyLevels = [
     }
 ]
 
-const AbilityCheckPopup = ({ability}) => {
+const AbilityCheckPopup = ({characterType, ability}) => {
     const [targetType, setTargetType] = useState(undefined)
     const [abilityCheck, setAbilityCheck] = useState(undefined)
     const doAbilityCheck = useCallback(async (options) => {
@@ -94,7 +93,7 @@ const AbilityCheckPopup = ({ability}) => {
                     <p>Level: {ability.level}</p>
                     <p>Temp Diff: {ability.tmpDiff}</p>
                     <p>
-                        Player Check: {abilityCheck.check} + {ability.level} + {ability.tmpDiff} = {abilityCheck.total}
+                        {_.startCase(characterType)} Check: {abilityCheck.check} + {ability.level} + {ability.tmpDiff} = {abilityCheck.total}
                     </p>
                     <p>Target Check: {abilityCheck.targetCheck}</p>
                     <p><b>{abilityCheck.success ? 'SUCCESS' : 'FAILURE'}</b></p>
@@ -174,4 +173,4 @@ const CharacterAbilityCheck = ({doAbilityCheck}) => {
     )
 }
 
-export default PlayerAbilities
+export default CharacterAbilities
