@@ -19,7 +19,7 @@ import {
     mapNames,
 } from '../../../shared.js'
 import TextInput from '../components/general/TextInput.jsx'
-import TurnList from '../components/general/TurnList.jsx'
+import TurnList from '../components/character/TurnList.jsx'
 import NpcList from '../components/gamemaster/NpcList.jsx'
 import CollapsibleComponent from '../components/general/CollapsibleComponent.jsx'
 

@@ -1,14 +1,14 @@
 import {useContext, useCallback} from 'react'
 import GlobalContext from '../../main/GlobalContext.jsx'
+import _ from 'lodash'
 import ObjectDisplay from '../general/ObjectDisplay.jsx'
 import SearchableDropdown from '../general/SearchableDropdown.jsx'
-import {apiFetch, getPlayer} from '../../lib.js'
+import {apiFetch} from '../../lib.js'
 import {mapNames} from '../../../../shared.js'
 import DeleteButton from '../general/DeleteButton.jsx'
 
-const PlayerInventory = () => {
+const CharacterInventory = ({characterType, character}) => {
     const {globalState} = useContext(GlobalContext)
-    const player = getPlayer(globalState)
     const getContainerWeight = useCallback(container => container.items.reduce((acc, item) => item.template.weight + acc, 0))
     const addItem = useCallback(async (name, containerId) => {
         await apiFetch('inventory/item', 'POST', {name, containerId})
@@ -16,20 +16,20 @@ const PlayerInventory = () => {
     const deleteItem = useCallback(async (id) => {
         await apiFetch('inventory/item', 'DELETE', {id})
     }, [])
-    const addContainer = useCallback(async (name, playerName) => {
-        await apiFetch('inventory/container', 'POST', {name, playerName})
-    }, [])
+    const addContainer = useCallback(async (name, characterName) => {
+        await apiFetch('inventory/container', 'POST', {name, characterName, characterType})
+    }, [characterType])
     const deleteContainer = useCallback(async (id) => {
         await apiFetch('inventory/container', 'DELETE', {id})
     }, [])
-    const playerCarryWeight = player.containers.reduce((acc, container) => {
+    const characterCarryWeight = character.containers.reduce((acc, container) => {
         const containerWeight = getContainerWeight(container)
         return containerWeight + acc
     }, 0)
     return (
         <>
-            <h2>Player Inventory</h2>
-            <p>Total Encumbrance: {playerCarryWeight} / {player.carryCapacity}</p>
+            <h2>{_.startCase(characterType)} Inventory</h2>
+            <p>Total Encumbrance: {characterCarryWeight} / {character.carryCapacity}</p>
             <table className="table-w-deletes">
                 <thead>
                     <tr>
@@ -42,7 +42,7 @@ const PlayerInventory = () => {
                 </thead>
                 <tbody>
                 {
-                    player.containers.map(container => (
+                    character.containers.map(container => (
                         <tr key={container.id}>
                             <td>
                                 <DeleteButton deleteFunc={async () => await deleteContainer(container.id)}/>
@@ -102,7 +102,7 @@ const PlayerInventory = () => {
                             options={mapNames(globalState.containerTemplates)}
                             placeholder="Add Container..."
                             required={true}
-                            onSelectOption={async (containerName) => await addContainer(containerName, player.name)}
+                            onSelectOption={async (containerName) => await addContainer(containerName, character.name)}
                         />
                     </td>
                 </tr>
@@ -112,4 +112,4 @@ const PlayerInventory = () => {
     )
 }
 
-export default PlayerInventory
+export default CharacterInventory

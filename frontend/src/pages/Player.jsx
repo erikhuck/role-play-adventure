@@ -1,12 +1,10 @@
 import React, {useContext, useEffect, useCallback} from 'react'
 import {useNavigate} from 'react-router-dom'
-import {apiFetch} from "../lib.js"
+import {apiFetch, getPlayer} from '../lib.js'
 import GlobalContext from "../main/GlobalContext.jsx"
-import PlayerTurns from '../components/player/PlayerTurns.jsx'
-import PlayerConditions from "../components/player/PlayerConditions.jsx"
-import PlayerAbilities from "../components/player/PlayerAbilities.jsx"
-import PlayerInventory from "../components/player/PlayerInventory.jsx"
-import CollapsibleComponent from "../components/general/CollapsibleComponent.jsx"
+import PlayerTurns from '../components/character/PlayerTurns.jsx'
+import CharacterInfo from '../components/character/CharacterInfo.jsx'
+import {CharacterType, Condition} from '../../../shared.js'
 
 const Player = ({updateGlobalState}) => {
     const {globalState} = useContext(GlobalContext)
@@ -22,6 +20,15 @@ const Player = ({updateGlobalState}) => {
         updateGlobalState({playerName: undefined})
         navigate('/login')
     }, [globalState.playerName, updateGlobalState, navigate])
+    const player = getPlayer(globalState)
+    const conditionData = player ? (
+        Object.keys(Condition).map(condition => ({
+                name: condition,
+                value: player[Condition[condition]],
+                max: player[`max${condition}`]
+            })
+        )
+    ) : undefined
     return (
         <div>
             {globalState.playerName ? (
@@ -29,15 +36,7 @@ const Player = ({updateGlobalState}) => {
                     <h1>{globalState.playerName}</h1>
                     <PlayerTurns updateGlobalState={updateGlobalState}/>
                     <hr/>
-                    <CollapsibleComponent label="Conditions">
-                        <PlayerConditions/>
-                    </CollapsibleComponent>
-                    <CollapsibleComponent label="Abilities">
-                        <PlayerAbilities/>
-                    </CollapsibleComponent>
-                    <CollapsibleComponent label="Inventory">
-                        <PlayerInventory/>
-                    </CollapsibleComponent>
+                    <CharacterInfo characterType={CharacterType.Player} conditionData={conditionData} character={player}/>
                     <button onClick={handleLogout}>Logout</button>
                 </>
             ) : (
