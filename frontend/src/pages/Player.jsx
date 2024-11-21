@@ -34,7 +34,7 @@ const Player = ({updateGlobalState}) => {
             {globalState.playerName ? (
                 <>
                     <h1>{globalState.playerName}</h1>
-                    <PlayerTurns updateGlobalState={updateGlobalState}/>
+                    <PlayerTurns/>
                     <hr/>
                     <CharacterInfo characterType={CharacterType.Player} conditionData={conditionData} character={player}/>
                     <button onClick={handleLogout}>Logout</button>
