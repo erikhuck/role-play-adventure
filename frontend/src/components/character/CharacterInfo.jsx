@@ -10,7 +10,7 @@ const CharacterInfo = ({characterType, conditionData, character}) => {
                 <CharacterConditions characterType={characterType} conditionData={conditionData}/>
             </CollapsibleComponent>
             <CollapsibleComponent label="Abilities">
-                <CharacterAbilities characterType={characterType} abilities={character.abilities}/>
+                <CharacterAbilities characterType={characterType} character={character}/>
             </CollapsibleComponent>
             <CollapsibleComponent label="Inventory">
                 <CharacterInventory characterType={characterType} character={character}/>

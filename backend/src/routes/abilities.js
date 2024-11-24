@@ -9,14 +9,21 @@ const abilitiesRoutes = Router()
 const getRandomInt = (min, max) => randomInt(max - min + 1) + min
 
 abilitiesRoutes.post('/check', async (req, res) => {
-    const player = await getPlayer(req)
-    if (!player) return res.status(400).send('Player not found')
     const {
         abilityName,
-        targetType
+        targetType,
+        characterType,
+        npcName
     } = req.body
+    let character
+    if (characterType === CharacterType.Player) {
+        character = await getPlayer(req)
+        if (!character) return res.status(400).send('Player not found')
+    } else {
+        character = await Database.getNpc(npcName)
+    }
     const findAbility = (abilities, name) => abilities.find(ability => ability.name === name)
-    const ability = findAbility(player.abilities, abilityName)
+    const ability = findAbility(character.abilities, abilityName)
     if (!ability) return res.status(400).send('Ability not found')
     let targetCheck
     if (targetType === AbilityCheckTargetType.DifficultyLevel) {
@@ -24,18 +31,18 @@ abilitiesRoutes.post('/check', async (req, res) => {
         targetCheck = difficultyLevel
     } else if (targetType === AbilityCheckTargetType.Character) {
         const {
-            characterName,
-            characterType,
-            characterAbilityName
+            targetName,
+            targetCharacterType,
+            targetAbilityName
         } = req.body
-        let character
-        if (characterType === CharacterType.Player) {
-            character = await Database.getPlayer(characterName)
+        let targetCharacter
+        if (targetCharacterType === CharacterType.Player) {
+            targetCharacter = await Database.getPlayer(targetName)
         } else {
-            character = await Database.getNpc(characterName)
+            targetCharacter = await Database.getNpc(targetName)
         }
-        if (!character) return res.status(400).send('Character not found')
-        const characterAbility = findAbility(character.abilities, characterAbilityName)
+        if (!targetCharacter) return res.status(400).send('Character not found')
+        const characterAbility = findAbility(targetCharacter.abilities, targetAbilityName) || {level: 0, tmpDiff: 0}
         if (!characterAbility) return res.status(400).send('Character ability not found')
         targetCheck = characterAbility.level + characterAbility.tmpDiff + getRandomInt(1, 20)
     } else {
@@ -44,7 +51,7 @@ abilitiesRoutes.post('/check', async (req, res) => {
     const check = getRandomInt(1, 20)
     const total = check + ability.level + ability.tmpDiff
     const success = check >= targetCheck
-    await Database.abilityCheck(success, player, ability)
+    await Database.abilityCheck(success, character, ability, characterType)
     return res.status(201).json({
         success,
         abilityName,

@@ -2,6 +2,7 @@ import {Router} from 'express'
 import {deleteTemplate, processSliderValues} from '../lib/index.js'
 import Database from '../lib/database.js'
 import {optionalNumber} from '../../../shared.js'
+import _ from 'lodash'
 
 const npcsRoutes = Router()
 
@@ -30,10 +31,12 @@ npcsRoutes.post('/template', async (req, res) => {
     const abilityNames = Object.keys(abilityLevels)
     let abilityTemplates = await Database.getAbilityTemplatesOfNames(abilityNames)
     abilityTemplates = abilityTemplates.reduce((acc, abilityTemplate) => {
-        const {
+        let {
             name,
             effectedConditions
         } = abilityTemplate
+        const {Health, Stamina} = effectedConditions
+        effectedConditions = _.pickBy({Health, Stamina}, value => value !== undefined);
         abilityTemplate = {
             level: abilityLevels[name],
             name,

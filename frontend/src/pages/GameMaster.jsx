@@ -81,7 +81,7 @@ const GameMaster = () => {
                 <NpcList/>
             </CollapsibleComponent>
             <h3>Turns</h3>
-            <TurnList buttonDisabled={globalState.turns[globalState.currentTurn].characterType === CharacterType.Player}/>
+            <TurnList buttonDisabled={globalState.turns.length === 0 || globalState.turns[globalState.currentTurn].characterType === CharacterType.Player}/>
             <h2>Manage Templates</h2>
             <TemplateComponent templates={globalState.abilityTemplates} deleteTemplate={deleteAbilityTemplate}
                                handleNewTemplate={handleNewAbilityTemplate} templateType="Ability">

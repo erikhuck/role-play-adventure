@@ -1,6 +1,6 @@
 import {PrismaClient} from '@prisma/client'
 import io from './websocket.js'
-import {Condition, mapNames, MaxLevel, MaxXp} from '../../../shared.js'
+import {CharacterType, Condition, mapNames, MaxLevel, MaxXp} from '../../../shared.js'
 import _ from 'lodash'
 import TurnManager from './turns.js'
 
@@ -89,6 +89,11 @@ class Database {
         io.emit('update-global-state', {players, ...otherUpdates})
     }
 
+    static async #updateCharacters(otherUpdates) {
+        const npcs = await Database.getNpcs()
+        await this.#updatePlayers({npcs, ...otherUpdates})
+    }
+
     static async addItem(name, containerId) {
         const template = await this.#getTemplate(prisma.itemTemplate, name)
         await prisma.item.create({
@@ -102,7 +107,7 @@ class Database {
                 }
             }
         })
-        await this.#updatePlayers({})
+        await Database.#updateCharacters({})
     }
 
     static async addContainer(name, characterName, characterType, location) {
@@ -115,12 +120,12 @@ class Database {
                 ...connectClause
             }
         })
-        await this.#updatePlayers({})
+        await Database.#updateCharacters({})
     }
 
     static async #delete(model, id) {
         await model.delete({where: {id}})
-        await this.#updatePlayers({})
+        await Database.#updateCharacters({})
     }
 
     static async deleteItem(id) {
@@ -192,7 +197,7 @@ class Database {
     static async deleteTemplate(name, model, type, include = undefined) {
         await model.delete({where: {name}})
         const templates = await Database.#getTemplates(model, include)
-        await this.#updatePlayers({[type + 'Templates']: templates})
+        await Database.#updateCharacters({[type + 'Templates']: templates})
     }
 
     static async deleteAbilityTemplate(name) {
@@ -279,79 +284,73 @@ class Database {
         TurnManager.dropTurn(npc.name)
     }
 
-    static async abilityCheck(success, player, ability) {
-        let {
-            xp,
-            level
-        } = ability
-        if (success && level < MaxLevel) {
-            xp += 1
-            if (xp === MaxXp) {
-                xp = 0
-                level += 1
-            }
-            await prisma.player.update({
-                where: {name: player.name},
-                data: {
-                    abilities: {
-                        update: {
-                            where: {
-                                playerName_name: {
-                                    playerName: player.name,
-                                    name: ability.name
+    static async abilityCheck(success, character, ability, characterType) {
+        if (characterType === CharacterType.Player) {
+            let {
+                xp,
+                level
+            } = ability
+            if (success && level < MaxLevel) {
+                xp += 1
+                if (xp === MaxXp) {
+                    xp = 0
+                    level += 1
+                }
+                await prisma.player.update({
+                    where: {name: character.name},
+                    data: {
+                        abilities: {
+                            update: {
+                                where: {
+                                    playerName_name: {
+                                        playerName: character.name,
+                                        name: ability.name
+                                    },
                                 },
-                            },
-                            data: {
-                                xp,
-                                level
+                                data: {
+                                    xp,
+                                    level
+                                }
                             }
                         }
                     }
-                }
-            })
+                })
+            }
         }
-        const players = await Database.updatePlayerConditions(player, ability.effectedConditions)
-        io.emit('update-global-state', {players})
+        const characters = await Database.updateCharacterConditions(character, ability.effectedConditions, characterType)
+        io.emit('update-global-state', {[`${characterType}s`]: characters})
     }
 
-    static #updatePlayerCondition(player, condition, effect) {
+    static updateCharacterCondition(character, condition, effect) {
         let maxCondition = `max${_.startCase(condition)}`
         condition = condition.toLowerCase()
-        player[condition] += effect
-        player[condition] = player[condition] >= 0 ? player[condition] : 0
-        maxCondition = player[maxCondition]
-        player[condition] = player[condition] <= maxCondition ? player[condition] : maxCondition
+        character[condition] += effect
+        character[condition] = character[condition] >= 0 ? character[condition] : 0
+        maxCondition = character[maxCondition]
+        character[condition] = character[condition] <= maxCondition ? character[condition] : maxCondition
     }
 
-    static async updatePlayerConditions(player, effectedConditions) {
+    static async updateCharacterConditions(character, effectedConditions, characterType) {
         for (const condition of Object.keys(effectedConditions)) {
-            Database.#updatePlayerCondition(player, condition, effectedConditions[condition])
+            Database.updateCharacterCondition(character, condition, effectedConditions[condition])
         }
-        for (const condition of [Condition.Stamina, Condition.Hunger, Condition.Thirst, Condition.Fatigue]) {
-            if (player[condition] === 0) {
-                Database.#updatePlayerCondition(player, Condition.Health, -1)
+        for (const condition of characterType === CharacterType.Player ? [Condition.Stamina, Condition.Hunger, Condition.Thirst, Condition.Fatigue] : [Condition.Stamina]) {
+            if (character[condition] === 0) {
+                Database.updateCharacterCondition(character, Condition.Health, -1)
             }
         }
-        const {
-            health,
-            stamina,
-            fatigue,
-            hunger,
-            thirst,
-            happiness
-        } = player
-        await prisma.player.update({
-            where: {name: player.name},
-            data: {
-                health,
-                stamina,
-                fatigue,
-                hunger,
-                thirst,
-                happiness
-            }
+        const {health, stamina} = character
+        let data = {health, stamina}
+        if (characterType === CharacterType.Player) {
+            const {fatigue, hunger, thirst, happiness} = character
+            data = {fatigue, hunger, thirst, happiness, ...data}
+        }
+        const model = characterType === CharacterType.Npc ? prisma.npc : prisma.player
+        await model.update({
+            where: {name: character.name},
+            data
         })
-        return await Database.getPlayers()
+        return characterType === CharacterType.Npc ? await Database.getNpcs() : await Database.getPlayers()
     }
 }
 
