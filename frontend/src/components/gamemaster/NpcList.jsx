@@ -1,12 +1,17 @@
-import {useContext, useCallback} from 'react'
+import {useContext, useCallback, useState} from 'react'
 import SearchableDropdown from '../general/SearchableDropdown.jsx'
-import {CharacterType, mapNames} from '../../../../shared.js'
+import {CharacterType, Condition, mapNames} from '../../../../shared.js'
 import GlobalContext from '../../main/GlobalContext.jsx'
 import {apiFetch} from '../../lib.js'
 import DeleteButton from '../general/DeleteButton.jsx'
+import Popup, {PopupButton} from '../general/Popup.jsx'
+import CharacterInfo from '../character/CharacterInfo.jsx'
+import _ from 'lodash'
 
 const NpcList = () => {
     const {globalState} = useContext(GlobalContext)
+    const [isPopupVisible, setIsPopupVisible] = useState(false)
+    const [npcId, setNpcId] = useState(undefined)
     const addNpc = useCallback(async (name) => {
         await apiFetch('/npcs/', 'POST', {name})
     }, [])
@@ -21,6 +26,16 @@ const NpcList = () => {
     })
     const turnNames = mapNames(globalState.turns)
     const npcInTurns = useCallback(name => turnNames.includes(name), [turnNames])
+    const getConditionData = useCallback((npc) => {
+        return npc ? (
+            [Condition.Health, Condition.Stamina].map(condition => ({
+                name: _.startCase(condition),
+                value: npc[condition],
+                max: npc[`max${_.startCase(condition)}`]
+            }))
+        ) : undefined
+    }, [])
+    const npc = globalState.npcs.find(npc => npc.id === npcId)
     return (
         <>
             <table className="table-w-deletes">
@@ -47,8 +62,7 @@ const NpcList = () => {
                                     )
                                 }
                             </td>
-                            {/* TODO the name cell should actually be a button that if clicked, brings a popup that shows more info about the NPC. This can probably be mostly re-used from the character screen, i.e. a shared component called CharacterInfo.*/}
-                            <td>{npc.name}</td>
+                            <td><PopupButton setIsVisible={setIsPopupVisible} data={npc.id} setData={setNpcId} text={npc.name}/></td>
                         </tr>
                     ))
                 }
@@ -60,6 +74,9 @@ const NpcList = () => {
                 required={true}
                 onSelectOption={addNpc}
             />
+            <Popup isVisible={isPopupVisible} setIsVisible={setIsPopupVisible}>
+                <CharacterInfo characterType={CharacterType.Npc} character={npc} conditionData={getConditionData(npc)}/>
+            </Popup>
         </>
     )
 }

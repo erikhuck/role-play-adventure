@@ -6,14 +6,14 @@ const popupOverlayStyle = {
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center'
 }
 
 const popupContentStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#242424',
     padding: '20px',
     borderRadius: '8px',
     textAlign: 'center'
@@ -33,6 +33,14 @@ const Popup = ({
             </div>
         </div>
     )
+}
+
+export const PopupButton = ({setIsVisible, data, setData, text}) => {
+    const openPopup = useCallback(() => {
+        setData(data)
+        setIsVisible(true)
+    }, [data, setData, setIsVisible])
+    return <button onClick={openPopup}>{text}</button>
 }
 
 export default Popup
