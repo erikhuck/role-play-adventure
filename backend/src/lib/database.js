@@ -1,6 +1,6 @@
-import {PrismaClient} from '@prisma/client'
+import Prisma, {PrismaClient} from '@prisma/client'
 import io from './websocket.js'
-import {CharacterType, Condition, mapNames, MaxLevel, MaxXp} from '../../../shared.js'
+import {CharacterType, Condition, mapNames, MaxLevel, MaxXp, MinTmpDiff, MaxTmpDiff} from '../../../shared.js'
 import _ from 'lodash'
 import TurnManager from './turns.js'
 
@@ -317,8 +317,7 @@ class Database {
                 })
             }
         }
-        const characters = await Database.updateCharacterConditions(character, ability.effectedConditions, characterType)
-        io.emit('update-global-state', {[`${characterType}s`]: characters})
+        await Database.updateCharacterConditions(character, ability.effectedConditions, characterType)
     }
 
     static updateCharacterCondition(character, condition, effect) {
@@ -350,7 +349,39 @@ class Database {
             where: {name: character.name},
             data
         })
-        return characterType === CharacterType.Npc ? await Database.getNpcs() : await Database.getPlayers()
+        const characters = characterType === CharacterType.Npc ? await Database.getNpcs() : await Database.getPlayers()
+        io.emit('update-global-state', {[`${characterType}s`]: characters})
+    }
+
+    static async updateCharacterAbilities(character, effectedAbilities, characterType) {
+        const tmpDiffs = Object.entries(effectedAbilities).map(([abilityName, effect]) => {
+            let {tmpDiff} = character.abilities.find((a) => a.name === abilityName)
+            tmpDiff += effect
+            tmpDiff = Math.min(MaxTmpDiff, Math.max(MinTmpDiff, tmpDiff))
+            return {name: abilityName, tmpDiff}
+        })
+        const abilityTable = characterType === CharacterType.Player ? 'PlayerAbility' : 'NpcAbility'
+        const characterIdField = characterType === CharacterType.Player ? 'playerName' : 'npcId'
+        const characterIdentifier = characterType === CharacterType.Player ? character.name : character.id
+        const cases = tmpDiffs.map(({name, tmpDiff}) =>
+            Prisma.sql`WHEN name = '${Prisma.raw(name)}' THEN ${Prisma.raw(tmpDiff)}`
+        )
+        const abilityNames = tmpDiffs.map(({name}) => name)
+        const query = Prisma.sql`
+            UPDATE "${Prisma.raw(abilityTable)}"
+            SET "tmpDiff" = CASE ${Prisma.join(cases, " ")} END
+            WHERE "${Prisma.raw(characterIdField)}" = '${Prisma.raw(characterIdentifier)}'
+            AND name IN (${Prisma.join(abilityNames.map(name => Prisma.sql`'${Prisma.raw(name)}'`), ", ")})`
+        await prisma.$executeRaw(query)
+        const characters = characterType === CharacterType.Npc
+            ? await Database.getNpcs()
+            : await Database.getPlayers()
+        io.emit('update-global-state', { [`${characterType}s`]: characters})
+    }
+
+    static async updateItemCharges(id, charges) {
+        await prisma.item.update({where: {id}, data: {charges}})
+        await Database.#updateCharacters({})
     }
 }
 

@@ -5,6 +5,7 @@ import Popup, {PopupButton} from '../general/Popup.jsx'
 import {apiFetch, sortByName} from '../../lib.js'
 import {AbilityCheckTargetType, MaxXp, MaxLevel, CharacterType} from '../../../../shared.js'
 import ObjectDisplay from '../general/ObjectDisplay.jsx'
+import TurnButtons from './TurnButtons.jsx'
 
 const CharacterAbilities = ({characterType, character}) => {
     const [isPopupVisible, setIsPopupVisible] = useState(false)
@@ -76,7 +77,7 @@ const difficultyLevels = [
     }
 ]
 
-const AbilityCheckPopup = ({characterType, ability, npcName}) => {
+export const AbilityCheckPopup = ({characterType, ability, npcName, useItem}) => {
     const [targetType, setTargetType] = useState(undefined)
     const [abilityCheck, setAbilityCheck] = useState(undefined)
     const doAbilityCheck = useCallback(async (options) => {
@@ -88,7 +89,10 @@ const AbilityCheckPopup = ({characterType, ability, npcName}) => {
             ...options
         })
         setAbilityCheck(abilityCheck)
-    }, [ability.name, targetType, characterType, npcName])
+        if (useItem) {
+            await useItem(abilityCheck.success)
+        }
+    }, [ability.name, targetType, characterType, npcName, useItem])
     return (
         <>
             <h2>{ability.name} Ability Check</h2>
@@ -166,13 +170,7 @@ const CharacterAbilityCheck = ({doAbilityCheck}) => {
                 ))}
             </>
         ) : (
-            <>
-                {globalState.turns.map((turn, index) => (
-                    <button key={index} onClick={() => setTurn(turn)}>
-                        {turn.name}
-                    </button>
-                ))}
-            </>
+            <TurnButtons setTurn={setTurn}/>
         )
     )
 }
