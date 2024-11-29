@@ -44,18 +44,16 @@ class TurnManager {
         this.#currentTurn = (this.#currentTurn + 1) % this.#turns.length
         if (characterType === CharacterType.Player) {
             const player = await Database.getPlayer(name)
-            const players = await Database.updateCharacterConditions(player, {
+            await Database.updateCharacterConditions(player, {
                 [Condition.Fatigue]: -1,
                 [Condition.Happiness]: -1,
                 [Condition.Hunger]: -1,
                 [Condition.Thirst]: -1,
                 [Condition.Stamina]: 1
             }, CharacterType.Player)
-            io.emit('update-global-state', {players})
         } else {
             const npc = await Database.getNpc(name)
-            const npcs = await Database.updateCharacterConditions(npc, {[Condition.Stamina]: 1}, CharacterType.Npc)
-            io.emit('update-global-state', {npcs})
+            await Database.updateCharacterConditions(npc, {[Condition.Stamina]: 1}, CharacterType.Npc)
         }
         io.emit('update-global-state', {currentTurn: this.#currentTurn})
     }

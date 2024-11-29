@@ -1,7 +1,8 @@
 import {Router} from 'express'
-import {optionalNumber} from '../../../shared.js'
+import {optionalNumber, CharacterType} from '../../../shared.js'
 import Database from '../lib/database.js'
 import {deleteTemplate, processSliderValues} from '../lib/index.js'
+import _ from 'lodash'
 
 const inventoryRoutes = Router()
 
@@ -45,6 +46,32 @@ inventoryRoutes.delete('/item', async (req, res) => {
     const {id} = req.body
     await Database.deleteItem(id)
     res.status(201).json({message: `Item of ID ${id} deleted.`})
+})
+
+inventoryRoutes.put('/item', async (req, res) => {
+    const {item, itemTarget, success} = req.body
+    if (item.charges <= 0) {
+        return req.status(400).json({message: 'Item cannot be used if no charges are left.'})
+    }
+    await Database.updateItemCharges(item.id, item.charges - 1)
+    const effectedConditions = item.template.effectedConditions
+    const effectedAbilities = item.template.effectedAbilities
+    if (success && (effectedConditions || effectedAbilities)) {
+        const target = itemTarget.characterType === CharacterType.Player ? await Database.getPlayer(itemTarget.name) : await Database.getNpc(itemTarget.name)
+        if (!_.isEmpty(effectedConditions)) {
+            await Database.updateCharacterConditions(target, effectedConditions, itemTarget.characterType)
+        }
+        if (!_.isEmpty(effectedAbilities)) {
+            await Database.updateCharacterAbilities(target, effectedAbilities, itemTarget.characterType)
+        }
+    }
+    return res.status(200).json({message: `Item of ID ${item.id} used on ${itemTarget.name}.`})
+})
+
+inventoryRoutes.put('/item/reset', async (req, res) => {
+    const {item} = req.body
+    await Database.updateItemCharges(item.id, item.template.maxCharges)
+    return res.status(200).json({message: `Item of ID ${item.id} charges reset.`})
 })
 
 inventoryRoutes.post('/container/template', async (req, res) => {

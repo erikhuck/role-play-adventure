@@ -24,6 +24,10 @@ export const MaxNpcStamina = 500
 
 export const MaxNpcCarryCapacity = 500
 
+export const MinTmpDiff = -10
+
+export const MaxTmpDiff = 15
+
 export const CharacterType = {
     Player: 'player',
     Npc: 'npc'

@@ -76,12 +76,14 @@ const GameMaster = () => {
     return (
         <>
             <h1>Game Master</h1>
-            <h2>NPCs and Turns</h2>
+            <h2>Characters</h2>
             <CollapsibleComponent label="NPC List">
                 <NpcList/>
             </CollapsibleComponent>
             <h3>Turns</h3>
             <TurnList buttonDisabled={globalState.turns.length === 0 || globalState.turns[globalState.currentTurn].characterType === CharacterType.Player}/>
+            <h3>Players</h3>
+            <p>TODO list players and have delete button.</p>
             <h2>Manage Templates</h2>
             <TemplateComponent templates={globalState.abilityTemplates} deleteTemplate={deleteAbilityTemplate}
                                handleNewTemplate={handleNewAbilityTemplate} templateType="Ability">
