@@ -33,6 +33,14 @@ router.get('/init', async (req, res) => {
     }
     return res.status(200).json(initialState)
 })
+router.post('/sleep', async (req, res) => {
+    const {
+        character,
+        characterType
+    } = req.body
+    await Database.characterSleep(character, characterType)
+    return res.status(201).json({message: `Character "${character.name}" slept successfully.`})
+})
 router.use('/auth', authRoutes)
 router.use('/turns', turnsRoutes)
 router.use('/player', playerRoutes)

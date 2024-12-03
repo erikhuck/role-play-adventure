@@ -84,7 +84,7 @@ class Database {
         return await model.findUnique({where: {name}, ...include})
     }
 
-    static async #updatePlayers(otherUpdates){
+    static async #updatePlayers(otherUpdates) {
         const players = await Database.getPlayers()
         io.emit('update-global-state', {players, ...otherUpdates})
     }
@@ -248,7 +248,12 @@ class Database {
                 nameOccurrence += 1
             }
         }
-        let {abilityTemplates, containerTemplates, name, ...rest} = template
+        let {
+            abilityTemplates,
+            containerTemplates,
+            name,
+            ...rest
+        } = template
         if (nameOccurrence > 1) {
             name = `${name} (${nameOccurrence})`
         }
@@ -257,14 +262,21 @@ class Database {
                 ...rest,
                 name,
                 abilities: {
-                    create: abilityTemplates.map(({name, effectedConditions, level}) => ({
+                    create: abilityTemplates.map(({
+                                                      name,
+                                                      effectedConditions,
+                                                      level
+                                                  }) => ({
                         name,
                         effectedConditions,
                         level
                     }))
                 },
                 containers: {
-                    create: containerTemplates.map(({name, weightCapacity}) => ({
+                    create: containerTemplates.map(({
+                                                        name,
+                                                        weightCapacity
+                                                    }) => ({
                         name,
                         weightCapacity
                     }))
@@ -277,7 +289,7 @@ class Database {
         io.emit('update-global-state', {npcs})
     }
 
-    static async deleteNpc(id){
+    static async deleteNpc(id) {
         const npc = await prisma.npc.delete({where: {id}})
         const npcs = await this.getNpcs()
         io.emit('update-global-state', {npcs})
@@ -338,15 +350,35 @@ class Database {
                 Database.updateCharacterCondition(character, Condition.Health, -1)
             }
         }
-        const {health, stamina} = character
-        let data = {health, stamina}
+        await Database.#updateCharacterConditions(character.name, character, characterType)
+    }
+
+    static async #updateCharacterConditions(name, newValues, characterType) {
+        const {
+            health,
+            stamina
+        } = newValues
+        let data = {
+            health,
+            stamina
+        }
         if (characterType === CharacterType.Player) {
-            const {fatigue, hunger, thirst, happiness} = character
-            data = {fatigue, hunger, thirst, happiness, ...data}
+            const {
+                fatigue,
+                hunger,
+                thirst,
+                happiness
+            } = newValues
+            data = {
+                fatigue,
+                hunger,
+                thirst,
+                happiness, ...data
+            }
         }
         const model = characterType === CharacterType.Npc ? prisma.npc : prisma.player
         await model.update({
-            where: {name: character.name},
+            where: {name},
             data
         })
         const characters = characterType === CharacterType.Npc ? await Database.getNpcs() : await Database.getPlayers()
@@ -358,29 +390,56 @@ class Database {
             let {tmpDiff} = character.abilities.find((a) => a.name === abilityName)
             tmpDiff += effect
             tmpDiff = Math.min(MaxTmpDiff, Math.max(MinTmpDiff, tmpDiff))
-            return {name: abilityName, tmpDiff}
+            return {
+                name: abilityName,
+                tmpDiff
+            }
         })
+        await Database.#updateCharacterAbilities(character, tmpDiffs, characterType)
+    }
+
+    static async #updateCharacterAbilities(character, tmpDiffs, characterType) {
         const abilityTable = characterType === CharacterType.Player ? 'PlayerAbility' : 'NpcAbility'
         const characterIdField = characterType === CharacterType.Player ? 'playerName' : 'npcId'
         const characterIdentifier = characterType === CharacterType.Player ? character.name : character.id
-        const cases = tmpDiffs.map(({name, tmpDiff}) =>
+        const cases = tmpDiffs.map(({
+                                        name,
+                                        tmpDiff
+                                    }) =>
             Prisma.sql`WHEN name = '${Prisma.raw(name)}' THEN ${Prisma.raw(tmpDiff)}`
         )
         const abilityNames = tmpDiffs.map(({name}) => name)
         const query = Prisma.sql`
             UPDATE "${Prisma.raw(abilityTable)}"
-            SET "tmpDiff" = CASE ${Prisma.join(cases, " ")} END
+            SET "tmpDiff" = CASE ${Prisma.join(cases, ' ')} END
             WHERE "${Prisma.raw(characterIdField)}" = '${Prisma.raw(characterIdentifier)}'
-            AND name IN (${Prisma.join(abilityNames.map(name => Prisma.sql`'${Prisma.raw(name)}'`), ", ")})`
+            AND name IN (${Prisma.join(abilityNames.map(name => Prisma.sql`'${Prisma.raw(name)}'`), ', ')})`
         await prisma.$executeRaw(query)
         const characters = characterType === CharacterType.Npc
             ? await Database.getNpcs()
             : await Database.getPlayers()
-        io.emit('update-global-state', { [`${characterType}s`]: characters})
+        io.emit('update-global-state', {[`${characterType}s`]: characters})
     }
 
     static async updateItemCharges(id, charges) {
-        await prisma.item.update({where: {id}, data: {charges}})
+        await prisma.item.update({
+            where: {id},
+            data: {charges}
+        })
+        await Database.#updateCharacters({})
+    }
+
+    static async characterSleep(character, characterType) {
+        const conditionUpdates = {}
+        for (const condition of characterType === CharacterType.Npc ? [Condition.Health, Condition.Stamina] : [Condition.Health, Condition.Stamina, Condition.Fatigue]) {
+            conditionUpdates[condition] = character[`max${_.startCase(condition)}`]
+        }
+        const tmpDiffs = character.abilities.map(({name}) => ({
+            name,
+            tmpDiff: 0
+        }))
+        await Database.#updateCharacterConditions(character.name, conditionUpdates, characterType)
+        await Database.#updateCharacterAbilities(character, tmpDiffs, characterType)
         await Database.#updateCharacters({})
     }
 }
