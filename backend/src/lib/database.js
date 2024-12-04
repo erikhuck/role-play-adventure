@@ -442,6 +442,18 @@ class Database {
         await Database.#updateCharacterAbilities(character, tmpDiffs, characterType)
         await Database.#updateCharacters({})
     }
+
+    static async updateCoins(id, update) {
+        await prisma.container.update({
+            where: {id},
+            data: {
+                coins: {
+                    increment: update
+                }
+            }
+        })
+        await this.#updateCharacters({})
+    }
 }
 
 export default Database

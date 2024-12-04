@@ -57,6 +57,7 @@ model Container {
   weightCapacity Int
   location       String  @default("On person")
   playerName     String?
+  coins          Int     @default(0)
   npcId          Int?
   npc            Npc?    @relation(fields: [npcId], references: [id], onDelete: Cascade)
   player         Player? @relation(fields: [playerName], references: [name], onDelete: Cascade)

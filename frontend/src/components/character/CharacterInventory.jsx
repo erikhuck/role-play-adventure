@@ -3,29 +3,28 @@ import GlobalContext from '../../main/GlobalContext.jsx'
 import _ from 'lodash'
 import ObjectDisplay from '../general/ObjectDisplay.jsx'
 import SearchableDropdown from '../general/SearchableDropdown.jsx'
-import {apiFetch} from '../../lib.js'
+import {apiFetch, getFormData} from '../../lib.js'
 import {CharacterType, mapNames} from '../../../../shared.js'
 import DeleteButton from '../general/DeleteButton.jsx'
 import Popup, {PopupButton} from '../general/Popup.jsx'
 import {AbilityCheckPopup} from './CharacterAbilities.jsx'
 import TurnButtons from './TurnButtons.jsx'
+import NumberInput from '../general/NumberInput.jsx'
 
 const CharacterInventory = ({characterType, character}) => {
     const {globalState} = useContext(GlobalContext)
-    const [isPopupVisible, setIsPopupVisible] = useState(false)
-    const [item, setItem] = useState(undefined)
+    const [isPopupVisible,setIsPopupVisible] = useState(false)
+    const [containerId, setContainerId] = useState(undefined)
     const getContainerWeight = useCallback(container => container.items.reduce((acc, item) => item.template.weight + acc, 0))
-    const addItem = useCallback(async (name, containerId) => {
-        await apiFetch('inventory/item', 'POST', {name, containerId})
-    }, [])
-    const deleteItem = useCallback(async (id) => {
-        await apiFetch('inventory/item', 'DELETE', {id})
-    }, [])
     const addContainer = useCallback(async (name, characterName) => {
         await apiFetch('inventory/container', 'POST', {name, characterName, characterType})
     }, [characterType])
     const deleteContainer = useCallback(async (id) => {
         await apiFetch('inventory/container', 'DELETE', {id})
+    }, [])
+    const updateCoins = useCallback(async (event, containerId) => {
+        const {update} = getFormData(event)
+        await apiFetch('inventory/coins', 'PUT', {containerId, update})
     }, [])
     const characterCarryWeight = character.containers.reduce((acc, container) => {
         const containerWeight = getContainerWeight(container)
@@ -40,6 +39,7 @@ const CharacterInventory = ({characterType, character}) => {
                     <tr>
                         <th className="no-style"></th>
                         <th>Name</th>
+                        <th>Coins</th>
                         <th>Location</th>
                         <th>Encumbrance</th>
                         <th>Items</th>
@@ -53,54 +53,20 @@ const CharacterInventory = ({characterType, character}) => {
                                 <DeleteButton deleteFunc={async () => await deleteContainer(container.id)}/>
                             </td>
                             <td>{container.name}</td>
+                            <td>
+                                <>
+                                    {container.coins}
+                                    <form onSubmit={async event => await updateCoins(event, container.id)}>
+                                        <NumberInput name="Update" required={true} maxValue={1000} minValue={String(-container.coins)}/>
+                                        <div>
+                                            <button type="submit">Submit</button>
+                                        </div>
+                                    </form>
+                                </>
+                            </td>
                             <td>{container.location}</td>
                             <td>{getContainerWeight(container)} / {container.weightCapacity}</td>
-                            <td>
-                                <table className="table-w-deletes">
-                                    <thead>
-                                        <tr>
-                                            <th className="no-style"></th>
-                                            <th>Name</th>
-                                            <th>Weight</th>
-                                            <th>Price</th>
-                                            <th>Charges</th>
-                                            <th>Associated Ability</th>
-                                            <th>Effected Abilities</th>
-                                            <th>Effected Conditions</th>
-                                            <th>Description</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {
-                                        container.items.map(item => (
-                                            <tr key={item.id}>
-                                                <td>
-                                                    <DeleteButton deleteFunc={async () => await deleteItem(item.id)}/>
-                                                </td>
-                                                <td><PopupButton setIsVisible={setIsPopupVisible} text={item.template.name} setData={setItem} data={item}/></td>
-                                                <td>{item.template.weight}</td>
-                                                <td>{item.template.price}</td>
-                                                <td>{item.charges} / {item.template.maxCharges}</td>
-                                                <td>{item.template.abilityName}</td>
-                                                <td><ObjectDisplay object={item.template.effectedAbilities}/></td>
-                                                <td><ObjectDisplay object={item.template.effectedConditions}/></td>
-                                                <td>{item.template.description}</td>
-                                            </tr>
-                                        ))
-                                    }
-                                    <tr key="add-item">
-                                        <td>
-                                            <SearchableDropdown
-                                                options={mapNames(globalState.itemTemplates)}
-                                                placeholder="Add Item..."
-                                                required={true}
-                                                onSelectOption={async (itemName) => await addItem(itemName, container.id)}
-                                            />
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </td>
+                            <td><PopupButton setIsVisible={setIsPopupVisible} text="Manage Items" data={container.id} setData={setContainerId}/></td>
                         </tr>
                     ))
                 }
@@ -111,6 +77,70 @@ const CharacterInventory = ({characterType, character}) => {
                             placeholder="Add Container..."
                             required={true}
                             onSelectOption={async (containerName) => await addContainer(containerName, character.name)}
+                        />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <Popup setIsVisible={setIsPopupVisible} isVisible={isPopupVisible}>
+                <ContainerItemsPopup containerId={containerId} character={character} characterType={characterType}/>
+            </Popup>
+        </>
+    )
+}
+
+const ContainerItemsPopup = ({containerId, character, characterType}) => {
+    const {globalState} = useContext(GlobalContext)
+    const [isPopupVisible, setIsPopupVisible] = useState(false)
+    const [item, setItem] = useState(undefined)
+    const addItem = useCallback(async (name, containerId) => {
+        await apiFetch('inventory/item', 'POST', {name, containerId})
+    }, [])
+    const deleteItem = useCallback(async (id) => {
+        await apiFetch('inventory/item', 'DELETE', {id})
+    }, [])
+    const container = character.containers.find(c => c.id === containerId)
+    return (
+        <>
+            <table className="table-w-deletes">
+                <thead>
+                <tr>
+                    <th className="no-style"></th>
+                    <th>Name</th>
+                    <th>Weight</th>
+                    <th>Price</th>
+                    <th>Charges</th>
+                    <th>Associated Ability</th>
+                    <th>Effected Abilities</th>
+                    <th>Effected Conditions</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                {
+                    container.items.map(item => (
+                        <tr key={item.id}>
+                            <td>
+                                <DeleteButton deleteFunc={async () => await deleteItem(item.id)}/>
+                            </td>
+                            <td><PopupButton setIsVisible={setIsPopupVisible} text={item.template.name} setData={setItem} data={item}/></td>
+                            <td>{item.template.weight}</td>
+                            <td>{item.template.price}</td>
+                            <td>{item.charges} / {item.template.maxCharges}</td>
+                            <td>{item.template.abilityName}</td>
+                            <td><ObjectDisplay object={item.template.effectedAbilities}/></td>
+                            <td><ObjectDisplay object={item.template.effectedConditions}/></td>
+                            <td>{item.template.description}</td>
+                        </tr>
+                    ))
+                }
+                <tr key="add-item">
+                    <td>
+                        <SearchableDropdown
+                            options={mapNames(globalState.itemTemplates)}
+                            placeholder="Add Item..."
+                            required={true}
+                            onSelectOption={async (itemName) => await addItem(itemName, container.id)}
                         />
                     </td>
                 </tr>

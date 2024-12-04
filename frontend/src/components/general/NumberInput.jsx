@@ -3,9 +3,10 @@ import camelCase from 'lodash/camelCase'
 const NumberInput = ({
                          maxValue,
                          name,
-                         required = true
+                         required = true,
+                         minValue = "0"
                      }) => {
-    const placeholder = `Enter a number (0-${maxValue})`
+    const placeholder = `Enter a number (${minValue}-${maxValue})`
     return (
         <div>
             <label htmlFor={name}>{`${name}: `}</label>
@@ -13,7 +14,7 @@ const NumberInput = ({
                 type="number"
                 id={name}
                 name={`${camelCase(name)}`}
-                min="0"
+                min={minValue}
                 max={maxValue}
                 placeholder={placeholder}
                 style={{width: `${placeholder.length + 1}ch`}}

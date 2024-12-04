@@ -4,7 +4,7 @@ import {apiFetch, getFormData} from '../lib.js'
 import TemplateComponent from '../components/gamemaster/TemplateComponent.jsx'
 import ConditionSliders from '../components/gamemaster/ConditionSliders.jsx'
 import AbilitySliders from '../components/gamemaster/AbilitySliders.jsx'
-import NumberInput from '../components/gamemaster/NumberInput.jsx'
+import NumberInput from '../components/general/NumberInput.jsx'
 import Dropdown from '../components/gamemaster/Dropdown.jsx'
 import CheckboxList from '../components/gamemaster/CheckboxList.jsx'
 import {
