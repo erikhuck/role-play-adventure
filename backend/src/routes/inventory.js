@@ -6,6 +6,13 @@ import _ from 'lodash'
 
 const inventoryRoutes = Router()
 
+inventoryRoutes.put('/coins', async (req, res) => {
+    let {containerId, update} = req.body
+    update = Number(update)
+    await Database.updateCoins(containerId, update)
+    return res.status(200).json({message: `Container of ID ${containerId} updated coins by amount of ${update}`})
+})
+
 inventoryRoutes.post('/item/template', async (req, res) => {
     let {
         name,

@@ -6,7 +6,8 @@
     "start": "node src/app.js",
     "dev": "nodemon app.js",
     "db:push": "prisma db push",
-    "db:generate": "npx prisma generate --schema=prisma/schema.prisma"
+    "db:generate": "npx prisma generate --schema=prisma/schema.prisma",
+    "ngrok": "ngrok http --url=wallaby-profound-hugely.ngrok-free.app 5001"
   },
   "author": "",
   "license": "ISC",
